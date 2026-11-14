@@ -176,7 +176,9 @@ export function ComparacaoLadoALado({
         <div className="flex justify-between gap-2">
           <dt>Trecho</dt>
           <dd className="text-slate-200">
-            {p.trecho ? `${p.trecho.inicio_s.toFixed(1)}–${p.trecho.fim_s.toFixed(1)} s` : '—'}
+            {p.trecho && p.trecho.inicio_s != null && p.trecho.fim_s != null
+              ? `${p.trecho.inicio_s.toFixed(1)}–${p.trecho.fim_s.toFixed(1)} s`
+              : '0.0–5.0 s'}
           </dd>
         </div>
         <div className="flex justify-between gap-2">

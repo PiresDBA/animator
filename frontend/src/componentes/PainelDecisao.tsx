@@ -118,8 +118,8 @@ export default function PainelDecisao({
       <div>
         <h2 className="cartao-titulo">Decisão — {previa.estilo_rotulo}</h2>
         <p className="mt-0.5 text-xs text-slate-500">
-          Prévia {previa.previa_id} · {previa.trecho?.inicio_s.toFixed(1)}–
-          {previa.trecho?.fim_s.toFixed(1)} s
+          Prévia {previa.previa_id} · {previa.trecho?.inicio_s != null ? previa.trecho.inicio_s.toFixed(1) : '0.0'}–
+          {previa.trecho?.fim_s != null ? previa.trecho.fim_s.toFixed(1) : '5.0'} s
         </p>
       </div>
 

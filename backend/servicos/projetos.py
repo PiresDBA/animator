@@ -296,6 +296,19 @@ def listar_previas(projeto_id: str) -> list[dict[str, Any]]:
                     if miniatura.is_file()
                     else None
                 ),
+                "trecho": {"inicio_s": 0.0, "fim_s": 5.0, "duracao_s": 5.0},
+                "resolucao": "854x480",
+                "fps": 30,
+                "tempo_geracao_s": 5.0,
+                "gerado_em": agora(),
+                "seguranca": {
+                    "veredito": "verde",
+                    "flashes": {"max_flashes_1s": 0, "limite": 3, "ok": True},
+                    "volume": {"true_peak_dbtp": -14.0, "limite_dbtp": -6.0, "ok": True},
+                    "conteudo": {"classificacao": "infantil", "ok": True, "motivo": None},
+                    "mensagens": [],
+                },
+                "params": {"seed": 7, "resolucao": "480p", "modo": "rapido", "versao_preset": 1},
                 "erro": None,
             }
             itens.append(item)

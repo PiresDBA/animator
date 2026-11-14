@@ -164,56 +164,38 @@ def construir_filme(
         arquivo.write_text(json.dumps(personagem, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         cast[nome] = {"character": str(arquivo), "override": {"palette": {"body": base["cor"]}}}
 
-    trilhos_js = []
-    for ator in atores:
-        trilhos_js.append(
-            {
-                "x": _interpolar_js(ator["trilho"], inicio),
-                "dir": _direcao_js(ator["trilho"], inicio),
-            }
-        )
+    linhas_atores = []
+    for indice, ator in enumerate(atores):
+        nome_ator = f"ator{indice + 1}"
+        trilha = ator.get("trilho") or []
+        if trilha:
+            x_ini = round(float(trilha[0]["x"]) - (largura / 2.0), 1)
+            x_fim = round(float(trilha[-1]["x"]) - (largura / 2.0), 1)
+        else:
+            x_ini = -180.0 if indice == 0 else 180.0
+            x_fim = -40.0 if indice == 0 else 40.0
 
-    # Mundo -> tela: zoom 1 e camera em x=0, entao mundo = pixel de tela
-    # deslocado pela metade da largura. O chao fica em gy (linha do chao da
-    # fonte) e a altura do personagem vem da caixa rastreada.
-    mundo_x = [p[1] - largura / 2.0 for p in json.loads(trilhos_js[0]["x"])]
+        # Facing inicial: olhando para o centro se parado, ou na direcao do movimento
+        if abs(x_fim - x_ini) > 5:
+            facing = 1 if x_fim > x_ini else -1
+        else:
+            facing = 1 if x_ini <= 0 else -1
+
+        linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing}, noBlink: true }});
+  {nome_ator}.pose(0, DURACAO, 'neutral');
+  {nome_ator}.walk(0.2, Math.max(0.4, DURACAO - 0.2), {x_fim}, {{ steps: false }});"""
+        linhas_atores.append(linha)
+
+    codigo_atores = "\n\n".join(linhas_atores)
     cena = f"""// Gerado por pipeline/render_stick.py (M2). Nao editar a mao.
-const TRILHOS = {json.dumps(trilhos_js, ensure_ascii=False)};
 const DURACAO = {duracao};
 
-function interpPar(pares, t) {{
-  if (!pares.length) return 0;
-  if (t <= pares[0][0]) return pares[0][1];
-  const ultimo = pares[pares.length - 1];
-  if (t >= ultimo[0]) return ultimo[1];
-  for (let i = 1; i < pares.length; i++) {{
-    if (t <= pares[i][0]) {{
-      const a = pares[i - 1], b = pares[i];
-      const w = (t - a[0]) / (b[0] - a[0] || 1);
-      return a[1] + (b[1] - a[1]) * w;
-    }}
-  }}
-  return ultimo[1];
-}}
-
 SF.defineFilm((E) => {{
-  E.set('ground', {{ band: false, tufts: false }});
-  TRILHOS.forEach((trilho, indice) => {{
-    const ator = E.actor('ator' + (indice + 1), {{
-      x: interpPar(trilho.x, 0),
-      facing: 1,
-      noBlink: true
-    }});
-    // Pose congelada: a translacao global vem do trilho medido (D023).
-    ator.custom((p, t) => {{
-      p.P.x = interpPar(trilho.x, t);
-      p.facing = interpPar(trilho.dir, t);
-      p.leg = [{{ u: 2, f: 0 }}, {{ u: -2, f: 0 }}];
-      p.arm = [{{ u: 8, f: 6 }}, {{ u: -8, f: -6 }}];
-      return p;
-    }});
-  }});
-  E.camera([[0, {{ x: 0, z: 1, gy: {gy} }}]]);
+  E.set('ground');
+
+{codigo_atores}
+
+  E.camera([[0, {{ x: 0, z: 1.0 }}]]);
   return {{ duration: DURACAO }};
 }});
 """
@@ -244,7 +226,7 @@ SF.defineFilm((E) => {{
         "scene_js": str(pasta_filme / "scene.js"),
         "atores": bases,
         "gy": gy,
-        "mundo_x_inicial": mundo_x[0] if mundo_x else 0.0,
+        "mundo_x_inicial": 0.0,
     }
 
 
@@ -305,6 +287,46 @@ def renderizar_quadros(
     }
 
 
+def _audio_tem_som(caminho_audio: Path) -> bool:
+    """Verifica se o audio tem sinal real ou se e totalmente silencioso."""
+    if not caminho_audio.is_file() or caminho_audio.stat().st_size < 1000:
+        return False
+    try:
+        import re
+        res = subprocess.run(
+            [str(FFMPEG), "-i", str(caminho_audio), "-af", "volumedetect", "-f", "null", "-"],
+            capture_output=True, text=True, errors="replace", timeout=10,
+        )
+        if "max_volume: -inf dB" in res.stderr:
+            return False
+        m = re.search(r"max_volume:\s*(-?\d+(?:\.\d+)?)\s*dB", res.stderr)
+        if m and float(m.group(1)) <= -75.0:
+            return False
+        return True
+    except Exception:
+        return False
+
+
+def _gerar_som_ludico(destino: Path, duracao_s: float) -> Path:
+    """Gera uma trilha harmonica infantil suave quando o video original e mudo."""
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    # Acordes de marimba/piano em Do maior com decaimento suave
+    filtro = (
+        f"aevalsrc='0.08*sin(2*PI*261.63*t)*exp(-3*mod(t,1.25)) + "
+        f"0.07*sin(2*PI*329.63*t)*exp(-3*mod(t+0.3,1.25)) + "
+        f"0.06*sin(2*PI*392.00*t)*exp(-3*mod(t+0.6,1.25)) + "
+        f"0.05*sin(2*PI*523.25*t)*exp(-3*mod(t+0.9,1.25))':"
+        f"sample_rate=48000:duration={duracao_s:.3f},afade=t=in:ss=0:d=0.3,afade=t=out:st={max(0.1, duracao_s - 0.5):.3f}:d=0.5"
+    )
+    comando = [
+        str(FFMPEG), "-y", "-hide_banner", "-loglevel", "error",
+        "-f", "lavfi", "-i", filtro,
+        "-c:a", "pcm_s16le", str(destino),
+    ]
+    subprocess.run(comando, check=True)
+    return destino
+
+
 def montar_audio(
     video_origem: Path,
     destino: Path,
@@ -312,7 +334,7 @@ def montar_audio(
     duracao_s: float,
     tem_audio: bool = True,
 ) -> Path:
-    """Extrai o trecho de audio original (mesmo tempo do video)."""
+    """Extrai o trecho de audio original. Se for mudo, gera harmonia ludica."""
     destino.parent.mkdir(parents=True, exist_ok=True)
     if tem_audio:
         comando = [
@@ -322,14 +344,15 @@ def montar_audio(
             "-vn", "-ac", "2", "-ar", "48000",
             "-c:a", "pcm_s16le", str(destino),
         ]
-    else:
-        comando = [
-            str(FFMPEG), "-y", "-hide_banner", "-loglevel", "error",
-            "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000",
-            "-t", f"{duracao_s:.3f}", "-c:a", "pcm_s16le", str(destino),
-        ]
-    subprocess.run(comando, check=True)
-    return destino
+        try:
+            subprocess.run(comando, check=True)
+            if _audio_tem_som(destino):
+                return destino
+        except subprocess.SubprocessError:
+            pass
+
+    # Se o audio original e ausente ou 100% mudo, gera som ludico infantil
+    return _gerar_som_ludico(destino, duracao_s)
 
 
 def montar_previa(
