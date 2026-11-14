@@ -1,0 +1,12 @@
+{
+  "versao": 1,
+  "id": "bonecos",
+  "nome_exibicao": "Bonecos de palito",
+  "descricao": "Personagens de linha, fundo simples e animação por poses.",
+  "tecnica": "bonecos",
+  "status": "fase_a",
+  "gpu_necessaria": false,
+  "difusao": false,
+  "paleta_max": null,
+  "observacao": "Usa o motor local stick-film; nenhum nome de estúdio ou franquia."
+}

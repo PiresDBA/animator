@@ -1,0 +1,16 @@
+{
+  "versao": 1,
+  "id": "lego",
+  "nome_exibicao": "Mosaico de blocos",
+  "descricao": "Cena refeita com blocos coloridos de pinos, em grade e paleta limitada.",
+  "tecnica": "lego_mosaico",
+  "status": "planejado",
+  "gpu_necessaria": false,
+  "difusao": false,
+  "paleta_max": 16,
+  "colunas": {
+    "min": 64,
+    "max": 96
+  },
+  "observacao": "Nome de exibição genérico; não usar marca protegida na interface."
+}

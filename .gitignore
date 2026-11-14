@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.venvs/
+node_modules/
+frontend/dist/
+.cache/
+*.log
+.env
+.env.*
+tools/ffmpeg/*.exe
+projetos/*
+!projetos/.gitkeep
+saidas/*
+!saidas/.gitkeep
+tests/.tmp*/

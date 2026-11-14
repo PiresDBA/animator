@@ -1,0 +1,90 @@
+{
+  "versao": 1,
+  "coletado_em": "2026-11-14T12:20:45+00:00",
+  "origem": "descoberta/hardware.py",
+  "sistema": {
+    "caption": "Microsoft Windows 11 Home Single Language",
+    "version": "10.0.26100",
+    "build": "26100",
+    "arch": "64 bits"
+  },
+  "computador": {
+    "fabricante": "Acer",
+    "modelo": "Predator G3-572",
+    "ram_bytes": 34237681664,
+    "ram_gb": 31.89
+  },
+  "cpu": {
+    "nome": "Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz",
+    "nucleos": 4,
+    "threads": 8
+  },
+  "gpu": {
+    "disponivel": true,
+    "gpus": [
+      {
+        "nome": "NVIDIA GeForce GTX 1060",
+        "driver": "581.57",
+        "vram_total_mib": 6144.0,
+        "vram_usada_mib": 425.0,
+        "temperatura_c": 53.0,
+        "potencia_w": 4.4,
+        "utilizacao_pct": 0.0
+      }
+    ],
+    "medido_em_repouso": true
+  },
+  "discos": [
+    {
+      "raiz": "C:\\",
+      "total_gb": 446.0,
+      "usado_gb": 408.8,
+      "livre_gb": 37.2
+    },
+    {
+      "raiz": "D:\\",
+      "total_gb": 1861.9,
+      "usado_gb": 1042.7,
+      "livre_gb": 819.2
+    }
+  ],
+  "ferramentas": {
+    "python": {
+      "caminho": "C:\\Docling\\venv\\Scripts\\python.EXE",
+      "versao": "Python 3.12.9"
+    },
+    "py": {
+      "caminho": "C:\\Windows\\py.EXE",
+      "versao": "Python 3.12.9"
+    },
+    "node": {
+      "caminho": "C:\\Program Files\\nodejs\\node.EXE",
+      "versao": "v24.14.0"
+    },
+    "npm": {
+      "caminho": "C:\\Program Files\\nodejs\\npm.CMD",
+      "versao": "11.9.0"
+    },
+    "git": {
+      "caminho": "C:\\Program Files\\Git\\cmd\\git.EXE",
+      "versao": "git version 2.53.0.windows.1"
+    },
+    "ffmpeg": {
+      "caminho": null,
+      "versao": null
+    },
+    "ffprobe": {
+      "caminho": null,
+      "versao": null
+    },
+    "nvidia-smi": {
+      "caminho": "C:\\Windows\\system32\\nvidia-smi.EXE",
+      "versao": "NVIDIA-SMI version  : 581.57"
+    }
+  },
+  "python_do_script": {
+    "executavel": "C:\\Users\\Pires\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "versao": "3.12.9",
+    "plataforma": "Windows-11-10.0.26100-SP0"
+  }
+}

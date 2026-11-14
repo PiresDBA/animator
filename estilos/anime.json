@@ -1,0 +1,12 @@
+{
+  "versao": 1,
+  "id": "anime",
+  "nome_exibicao": "Traço anime",
+  "descricao": "Contornos expressivos, cores chapadas e sombreamento em poucos tons.",
+  "tecnica": "anime_contornos",
+  "status": "planejado",
+  "gpu_necessaria": false,
+  "difusao": false,
+  "paleta_max": 12,
+  "observacao": "Estilo genérico, sem personagens ou franquias protegidas."
+}

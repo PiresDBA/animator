@@ -1,0 +1,64 @@
+{
+  "versao": 1,
+  "coletado_em": "2026-11-14T12:22:10+00:00",
+  "origem": "descoberta/teste_gpu.py",
+  "baseline_smi": {
+    "temperatura_c": 53.0,
+    "potencia_w": 4.1,
+    "vram_usada_mib": 393.0,
+    "vram_total_mib": 6144.0,
+    "utilizacao_pct": 0.0
+  },
+  "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+  "torch": "2.6.0+cu126",
+  "cuda_build": "12.6",
+  "cudnn": 90501,
+  "cuda_disponivel": true,
+  "gpu": {
+    "nome": "NVIDIA GeForce GTX 1060",
+    "capacidade_sm": "6.1",
+    "vram_total_mib": 6143.9,
+    "multiprocessadores": 10
+  },
+  "corretude": {
+    "teste": "matmul 256x256 float32 GPU vs CPU",
+    "ok": true,
+    "rtol": 0.002,
+    "atol": 0.002
+  },
+  "matmul_4096": {
+    "repeticoes": 3,
+    "tempos_ms": [
+      49.404,
+      45.003,
+      45.006
+    ],
+    "mediana_ms": 45.006,
+    "minimo_ms": 45.003,
+    "maximo_ms": 49.404
+  },
+  "conv2d_64x32x3x3_512": {
+    "repeticoes": 3,
+    "tempos_ms": [
+      112.377,
+      2.492,
+      2.383
+    ],
+    "mediana_ms": 2.492,
+    "minimo_ms": 2.383,
+    "maximo_ms": 112.377
+  },
+  "vram_torch_pico_mib": 235.1,
+  "vram_torch_reservada_mib": 280.0,
+  "monitor": {
+    "amostras": 1,
+    "temperatura_max_c": 55.0,
+    "temperatura_mediana_c": 55.0,
+    "potencia_max_w": 63.9,
+    "potencia_mediana_w": 63.9,
+    "vram_max_mib": 692.0,
+    "utilizacao_max_pct": 17.0
+  },
+  "duracao_total_s": 4.98,
+  "ok": true
+}

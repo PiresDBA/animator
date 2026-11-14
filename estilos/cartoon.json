@@ -1,0 +1,12 @@
+{
+  "versao": 1,
+  "id": "cartoon",
+  "nome_exibicao": "Cartoon 3D estilizado",
+  "descricao": "Malha 3D com material toon, rampa de poucos tons e contorno desenhado.",
+  "tecnica": "toon3d",
+  "status": "planejado",
+  "gpu_necessaria": false,
+  "difusao": false,
+  "paleta_max": null,
+  "observacao": "Three.js no Remotion; sem difusão na Fase A."
+}

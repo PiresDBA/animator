@@ -1,0 +1,48 @@
+{
+  "versao": 1,
+  "entrada_principal": "youtube",
+  "publico": "7_a_10",
+  "estilos_iniciais": [
+    "bonecos",
+    "lego",
+    "anime",
+    "cartoon",
+    "3d"
+  ],
+  "orcamento": {
+    "limite_segundos": null,
+    "sem_limite_pratico": true,
+    "pc_disponivel_durante_geracao": true,
+    "observacao": "Sem limite pratico declarado; mesmo assim, lotes curtos para evitar TDR."
+  },
+  "padroes": {
+    "duracao_s": 60,
+    "resolucao": "720p",
+    "audio": "original",
+    "legendas": "queimadas",
+    "formatos": [
+      "16:9",
+      "9:16"
+    ],
+    "tema": "escuro",
+    "acento": "azul-ciano",
+    "tentativas_por_estilo": 3,
+    "previa_s": 5
+  },
+  "descoberta": {
+    "autorizada": true,
+    "somente_leitura": true,
+    "limite_segundos": 180,
+    "varredura_executada": true,
+    "resultados_confirmados": false
+  },
+  "licenca_remotion": "pessoal_educacional",
+  "direitos_youtube": "confirmacao_obrigatoria_por_video",
+  "nuvem": false,
+  "caminhos": {},
+  "agente": {
+    "fase": "A",
+    "marco_atual": "M0",
+    "aprovacao_fase_b": false
+  }
+}
