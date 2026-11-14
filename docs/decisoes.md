@@ -248,6 +248,12 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
 
 - Data: 2026-11-14
 - Decisão: o backend FastAPI monta e serve a pasta `frontend/dist` na raiz `/` e a pasta do projeto em `/media`, unificando a inicialização do app em um único processo e porta (8765).
+
+## D027 — Aprimoramento visual lúdico: estilo line, cenografia e trilha DSP
+
+- Data: 2026-11-14
+- Decisão: substituir a representação geométrica vazia dos bonecos pelo estilo nativo `line` do stick-film com feições expressivas (olhos e sorriso), acessórios infantis (cachecol e gorro), cenografia procedural (colinas, sol, nuvens e árvore), coreografia expressiva (aceno, alegria e comemoração em vez de passos no mesmo lugar) e sonorização procedural lúdica via `audio/score.py` e `audio/dsp.py` do motor.
+- Motivo: atender ao critério de sucesso do Prompt Mestre ("prender a atenção de uma criança de 7 a 10 anos"), eliminando a rigidez robótica e o ruído sintético anterior, mantendo 100% de processamento local em CPU e limite de volume estritamente seguro (-8.4 dBTP <= -6.0 dBTP).
 - Motivo: simplifica o uso para o usuário, permitindo abrir o estúdio diretamente pelo `iniciar.bat` sem necessidade de múltiplos servidores locais abertos em paralelo.
 
 ## Pendências de decisão
