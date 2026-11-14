@@ -141,28 +141,56 @@ def construir_filme(
         )
     gy = int(round(gy))
 
+    cores_atores = ["#f59e0b", "#06b6d4", "#10b981", "#ec4899"]
     pasta_personagens = pasta_filme / "characters"
     pasta_personagens.mkdir(parents=True, exist_ok=True)
-    cast: dict[str, dict] = {}
+    cast: dict[str, Any] = {}
     for indice, base in enumerate(bases):
         nome = base["id"]
+        chave_cast = f"ator{indice + 1}"
         arquivo = pasta_personagens / f"{nome}.json"
+        cor_destaque = cores_atores[indice % len(cores_atores)]
+
+        acessorios = []
+        if indice == 0:
+            acessorios.append({"type": "scarf", "color": "accent"})
+        elif indice == 1:
+            acessorios.append({"type": "cap", "color": "accent"})
+        else:
+            acessorios.append({"type": "glasses", "color": "accent"})
+
         personagem = {
-            "name": f"Ator {indice + 1}",
+            "name": f"Personagem {indice + 1}",
             "slug": nome,
-            "style": "flat",
+            "style": "line",
             "palette": {
-                "body": base["cor"],
-                "shirt": base["cor"],
-                "head": base["cor"],
-                "hand": base["cor"],
+                "ink": "#1e293b",
+                "paper": "#fefdfa",
+                "accent": cor_destaque,
             },
-            "body": {"height": base["altura"], "line": 0.0205},
-            "face": {"eyes": "none", "brows": False, "mouth": "none"},
-            "notes": "gerado pelo adaptador do M2 a partir do rastreamento",
+            "body": {
+                "height": max(260, min(480, base["altura"])),
+                "head": 0.16,
+                "torso": 0.28,
+                "thigh": 0.18,
+                "shin": 0.18,
+                "upperArm": 0.165,
+                "foreArm": 0.165,
+                "line": 0.022,
+                "hand": [0.032, 0.042],
+                "foot": [0.062, 0.024],
+            },
+            "face": {
+                "eyes": "dot",
+                "brows": True,
+                "mouth": "smile",
+            },
+            "accessories": acessorios,
+            "notes": "gerado pelo adaptador do M2",
         }
         arquivo.write_text(json.dumps(personagem, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        cast[nome] = {"character": str(arquivo), "override": {"palette": {"body": base["cor"]}}}
+        cast[chave_cast] = f"characters/{nome}.json"
+        cast[nome] = f"characters/{nome}.json"
 
     linhas_atores = []
     for indice, ator in enumerate(atores):
@@ -172,18 +200,40 @@ def construir_filme(
             x_ini = round(float(trilha[0]["x"]) - (largura / 2.0), 1)
             x_fim = round(float(trilha[-1]["x"]) - (largura / 2.0), 1)
         else:
-            x_ini = -180.0 if indice == 0 else 180.0
-            x_fim = -40.0 if indice == 0 else 40.0
+            x_ini = -140.0 if indice == 0 else 140.0
+            x_fim = -140.0 if indice == 0 else 140.0
 
-        # Facing inicial: olhando para o centro se parado, ou na direcao do movimento
-        if abs(x_fim - x_ini) > 5:
+        deslocamento = abs(x_fim - x_ini)
+        facing = 1 if indice == 0 else -1
+        if deslocamento > 40:
             facing = 1 if x_fim > x_ini else -1
-        else:
-            facing = 1 if x_ini <= 0 else -1
 
-        linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing}, noBlink: true }});
-  {nome_ator}.pose(0, DURACAO, 'neutral');
-  {nome_ator}.walk(0.2, Math.max(0.4, DURACAO - 0.2), {x_fim}, {{ steps: false }});"""
+        if indice == 0:
+            if deslocamento > 40:
+                linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing} }});
+  {nome_ator}.smile(0.1, DURACAO, 1.0);
+  {nome_ator}.walk(0.2, 2.2, {x_fim}, {{ steps: true, ease: 'smooth' }});
+  {nome_ator}.pose(2.3, 3.5, 'wave');
+  {nome_ator}.pose(3.5, DURACAO, 'celebrate');"""
+            else:
+                linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing} }});
+  {nome_ator}.smile(0.1, DURACAO, 1.0);
+  {nome_ator}.pose(0.0, 1.4, 'happy');
+  {nome_ator}.pose(1.4, 3.2, 'wave');
+  {nome_ator}.pose(3.2, DURACAO, 'celebrate');"""
+        else:
+            if deslocamento > 40:
+                linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing} }});
+  {nome_ator}.smile(0.1, DURACAO, 1.0);
+  {nome_ator}.walk(0.2, 2.2, {x_fim}, {{ steps: true, ease: 'smooth' }});
+  {nome_ator}.pose(2.3, 3.5, 'happy');
+  {nome_ator}.pose(3.5, DURACAO, 'celebrate');"""
+            else:
+                linha = f"""  const {nome_ator} = E.actor('{nome_ator}', {{ x: {x_ini}, facing: {facing} }});
+  {nome_ator}.smile(0.1, DURACAO, 1.0);
+  {nome_ator}.pose(0.0, 1.6, 'surprised');
+  {nome_ator}.pose(1.6, 3.2, 'happy');
+  {nome_ator}.pose(3.2, DURACAO, 'celebrate');"""
         linhas_atores.append(linha)
 
     codigo_atores = "\n\n".join(linhas_atores)
@@ -191,11 +241,19 @@ def construir_filme(
 const DURACAO = {duracao};
 
 SF.defineFilm((E) => {{
-  E.set('ground');
+  E.set('ground', {{ band: true, bandHeight: 38 }});
+  E.set('hills');
+  E.set('sun', {{ x: 380, y: -430, r: 52 }});
+  E.set('clouds', {{ list: [[-480, -580, 0.9], [120, -620, 0.75], [680, -560, 0.85]], drift: 7 }});
+  E.set('tree', {{ x: 490, scale: 0.82 }});
 
 {codigo_atores}
 
-  E.camera([[0, {{ x: 0, z: 1.0 }}]]);
+  E.camera([
+    [0.0, {{ x: 0, z: 0.95 }}],
+    [2.5, {{ x: 0, z: 1.04 }}],
+    [DURACAO, {{ x: 0, z: 1.0 }}]
+  ]);
   return {{ duration: DURACAO }};
 }});
 """
@@ -207,15 +265,15 @@ SF.defineFilm((E) => {{
         "height": altura,
         "fps": fps,
         "duration": duracao,
-        "style": "flat",
+        "style": "line",
         "palette": {
-            "ink": "#f4f4f4",
-            "paper": cor_fundo,
-            "ground": cor_fundo,
-            "accent": "#22d3ee",
+            "ink": "#1e293b",
+            "paper": "#fefdfa",
+            "ground": "#e2e8f0",
+            "accent": "#0ea5e9",
         },
         "cast": cast,
-        "look": {"squash": 0, "drag": 0, "blur": 0, "shade": False, "shadows": True},
+        "look": {"squash": 0.14, "drag": 0.10, "blur": 0, "shade": False, "shadows": True},
         "cues": {},
     }
     (pasta_filme / "film.json").write_text(json.dumps(filme, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -308,15 +366,62 @@ def _audio_tem_som(caminho_audio: Path) -> bool:
 
 
 def _gerar_som_ludico(destino: Path, duracao_s: float) -> Path:
-    """Gera uma trilha harmonica infantil suave quando o video original e mudo."""
+    """Gera uma trilha harmonica infantil suave e alegre quando o video original e mudo."""
     destino.parent.mkdir(parents=True, exist_ok=True)
-    # Acordes de marimba/piano em Do maior com decaimento suave
+    caminho_audio_motor = caminho_motor() / "audio"
+    if caminho_audio_motor.is_dir():
+        import sys
+        sys_str = str(caminho_audio_motor)
+        if sys_str not in sys.path:
+            sys.path.insert(0, sys_str)
+        try:
+            import dsp
+            import score
+            import scipy.io.wavfile as wav
+
+            SR = 48000
+            N = int(SR * duracao_s)
+            bus = np.zeros((2, N))
+
+            def place(sig, t0, gain=1.0, pan=0.0):
+                i0 = int(round(t0 * SR))
+                if i0 >= N or i0 + len(sig) <= 0:
+                    return
+                a = max(0, -i0)
+                b = min(len(sig), N - i0)
+                s = np.asarray(sig[a:b]) * gain
+                l = np.cos((pan + 1) * np.pi / 4)
+                r = np.sin((pan + 1) * np.pi / 4)
+                bus[0, i0 + a : i0 + b] += s * l
+                bus[1, i0 + a : i0 + b] += s * r
+
+            score.compose(
+                place,
+                duracao_s,
+                [[0.0, "playful"]],
+                {"preset": "playful", "bpm": 92, "key": "C"},
+            )
+            out = dsp.reverb(bus, 0.22, 1.4)
+            pk = np.max(np.abs(out)) + 1e-9
+            # Normaliza para nivel seguro (< -6 dBTP, em torno de -8.2 dBTP)
+            out = (out / pk * 0.38).T
+            fo = np.ones(N)
+            nf_in = int(0.2 * SR)
+            nf_out = int(0.4 * SR)
+            fo[:nf_in] = np.linspace(0, 1, nf_in)
+            fo[-nf_out:] = np.cos(np.linspace(0, np.pi / 2, nf_out)) ** 2
+            out *= fo[:, None]
+            wav.write(str(destino), SR, (out * 32767).astype(np.int16))
+            return destino
+        except Exception:
+            pass
+
+    # Fallback melodico suave com filtro passa-baixa em caso de indisponibilidade
     filtro = (
-        f"aevalsrc='0.08*sin(2*PI*261.63*t)*exp(-3*mod(t,1.25)) + "
-        f"0.07*sin(2*PI*329.63*t)*exp(-3*mod(t+0.3,1.25)) + "
-        f"0.06*sin(2*PI*392.00*t)*exp(-3*mod(t+0.6,1.25)) + "
-        f"0.05*sin(2*PI*523.25*t)*exp(-3*mod(t+0.9,1.25))':"
-        f"sample_rate=48000:duration={duracao_s:.3f},afade=t=in:ss=0:d=0.3,afade=t=out:st={max(0.1, duracao_s - 0.5):.3f}:d=0.5"
+        f"aevalsrc='0.05*sin(2*PI*523.25*t)*exp(-2.5*mod(t,0.5)) + "
+        f"0.04*sin(2*PI*659.25*t)*exp(-2.5*mod(t+0.25,0.5)) + "
+        f"0.03*sin(2*PI*783.99*t)*exp(-2.5*mod(t+0.125,0.5))':"
+        f"sample_rate=48000:duration={duracao_s:.3f},lowpass=f=2000,afade=t=in:ss=0:d=0.3,afade=t=out:st={max(0.1, duracao_s - 0.5):.3f}:d=0.5"
     )
     comando = [
         str(FFMPEG), "-y", "-hide_banner", "-loglevel", "error",
