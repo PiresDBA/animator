@@ -21,3 +21,5 @@ tests/golden/*.wav
 *.pt
 *.onnx
 *.safetensors
+backend/fila.sqlite3*
+remotion/out/

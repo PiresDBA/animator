@@ -123,11 +123,16 @@ pessoal/educacional, lotes curtos para TDR e uso do stick-film como motor.
 M1 — Análise de vídeo: cenas, movimento, profundidade, máscaras, pose e fala,
 com schemas versionados e validação no golden set.
 
-## M1 — Análise de vídeo (concluído tecnicamente; aguardando aprovação)
+## M1 — Análise de vídeo (concluído e aprovado)
 
 Data: 2026-11-14
 Status: **pipeline executado nos 3 clipes do golden set; 3 JSONs válidos e
-23 testes OK. Aguardando aprovação humana antes do M2.**
+23 testes OK. Aprovado pelo usuário em 2026-11-14; M2 iniciado.**
+
+Ressalva de aprovação: na cena 2, o movimento medido é a translação global de
+dois bonecos rígidos que se arrastam, se encaram, se encostam e voltam. Não há
+animação de braços ou pernas; o M2 deve preservar esse comportamento de tela
+estática deslizando.
 
 ### O que foi feito
 
@@ -205,3 +210,68 @@ clipe 1: 102,22 s); execuções seguintes ficaram em 36–52 s por clipe.
 
 M2 — primeira prévia vertical com o motor de bonecos, aprovação humana e
 renderização de um trecho curto; nenhum vídeo completo antes do portão do M3.
+
+
+## M2 — Primeiro estilo fim a fim: bonecos de palito em CPU (concluído para aprovação)
+
+Data: 2026-11-14
+Status: **concluído e aguardando aprovação humana antes do M3.**
+
+### O que foi feito
+
+- Implementação do adaptador do motor de bonecos `stick-film` em `pipeline/render_stick.py` com suporte a movimento de translação global sem articulação (D023).
+- Implementação de rastreamento de atores local por subtração de fundo (sem GPU) em `pipeline/tracking.py`.
+- Implementação da checagem de segurança infantil em `pipeline/seguranca.py` (flashes WCAG 2.3.1 em janela de 1 s, volume -6 dBTP com suporte a silêncio e filtro léxico de palavras inadequadas).
+- Implementação do roteador de técnicas por cena em `pipeline/roteador.py`.
+- Implementação do gerador CLI de prévia em `pipeline/previa.py` integrando tracking, renderização pelo motor, montagem de áudio sincronizado via FFmpeg, extração de miniatura, laudo de segurança e persistência de `previa.json`.
+- Backend FastAPI completo com endpoints `/api/estado`, CRUD de projetos, fila SQLite com worker persistente, difusão WebSocket em `/api/eventos` e bloqueio 403 obrigatório para `/api/projetos/{id}/completo`.
+- Frontend React + Vite + TypeScript + Tailwind compilado em `frontend/dist/` com 10 páginas, gráficos Recharts, prévias comparativas lado a lado e slider antes/depois, e painel de decisão com notas por estrelas em 5 critérios.
+- `iniciar.bat` atualizado para inicializar o backend e abrir a interface gráfica automaticamente no navegador.
+- Criação da suíte de testes automatizados do M2 em `tests/test_m2.py`. Total de 29 testes unitários passando.
+
+### Evidências
+
+| Comando | Resultado |
+|---|---|
+| `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` | 29 testes, todos OK, 0,753 s |
+| `npx tsc --noEmit` em `frontend/` | 0 erros, TypeScript validado |
+| `npm run build` em `frontend/` | build concluído com sucesso em 7,08 s gerando `frontend/dist/` |
+| `.\.venv\Scripts\python.exe -m pipeline.previa --projeto teste-backend --estilo bonecos --trecho-inicio 0.0 --trecho-fim 5.0 --resolucao 480p` | `OK: projetos/teste-backend/previa.json` (tempo total 9,567 s) |
+| `Invoke-RestMethod http://127.0.0.1:8765/api/estado` | Retorna `{"marco": "M2", "backend": "ok", ...}` |
+| Chamada para `POST /api/projetos/teste-backend/completo` | Retorna HTTP 403 Forbidden com `sem_aprovacao` / bloqueio de Fase B |
+
+Arquivos gerados:
+- `projetos/teste-backend/saidas/previa_bonecos_002.mp4` (vídeo H.264 + AAC, 854x480, 30 fps, 5,0 s, 32.194 bytes)
+- `projetos/teste-backend/saidas/miniatura_bonecos_002.png` (59.281 bytes)
+- `projetos/teste-backend/saidas/audio_trecho.wav` (960.078 bytes)
+- `projetos/teste-backend/previa.json` (validado com o schema do contrato)
+- `projetos/teste-backend/mapa_tecnicas.json`
+- `frontend/dist/` (assets de produção do painel web)
+
+### Medidas reais
+
+- Metodologia: cronometragem de alta precisão via `time.perf_counter()` no pipeline e telemetria de GPU via `nvidia-smi`.
+- Tempo de renderização da prévia de 5 s (150 quadros a 30 fps em 854x480): **9,567 s** em CPU.
+- Taxa de renderização do motor `stick-film`: ~15,6 quadros/s em CPU (Intel i7-7700HQ).
+- Consumo de VRAM durante a prévia de bonecos: **0 MB adicionais** (processamento 100% CPU, mantendo GPU livre).
+- Temperatura da GPU durante o M2: estável em repouso (53 °C).
+- Testes automatizados: 29 testes em 0,753 s.
+
+### Decisões tomadas
+
+Registradas em `docs/decisoes.md`:
+- **D024**: Resolução do motor de bonecos em 480p (854x480) com renderização de 150 quadros via headless Chrome local e Playwright-core existente em `C:\Users\Pires\StickFilms`.
+- **D025**: Tratamento de silêncio absoluto (`Peak: -inf dBFS`) no medidor de volume do FFmpeg como -70 dBTP seguro (veredito verde).
+- **D026**: Servir o build do frontend em `frontend/dist` diretamente pelo FastAPI na porta 8765 sob a rota raiz `/`.
+
+### Riscos e limitações conhecidas
+
+- O estilo de bonecos de palito preserva a translação global pura (sem caminhar articulado), conforme especificado em D023.
+- Vídeos com áudio totalmente silencioso reportam pico de silêncio; vídeos reais com música alta passarão pelo medidor -6 dBTP normalmente.
+- Geração de vídeo completo permanece bloqueada por design até a aprovação formal do M3.
+
+### O que precisa da aprovação do usuário antes do próximo marco
+
+1. Aprovação da prévia de 5 s gerada para bonecos de palito (`projetos/teste-backend/saidas/previa_bonecos_002.mp4`).
+2. Validação da interface gráfica web (acessível em `http://127.0.0.1:8765` ao executar `iniciar.bat`).
+3. Autorização para prosseguir para o **M3 — Portão e Segurança** (regras de portão, testes de flashes sintéticos, decisões em avaliacoes.json e retomada de estado).

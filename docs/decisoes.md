@@ -215,6 +215,41 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
   revalidar a transcrição em CUDA e CPU. Se o CUDA falhar, o código cai para CPU
   em vez de interromper a análise.
 
+## D023 — Aprovação do M1 e movimento estático do M2
+
+- Data: 2026-11-14
+- Decisão: o M1 está aprovado. O M2 deve renderizar dois bonecos rígidos que
+  deslizam pelo chão, se encaram, se encostam e retornam, sem ciclo de caminhada
+  e sem animação de braços ou pernas.
+- Motivo: o usuário confirmou que, na cena 2 do golden set, o “movimento” era
+  apenas a translação global das duas figuras. A métrica do M1 mede fluxo
+  óptico e diferença de quadros, não articulação; portanto, um valor alto de
+  movimento não implica membros animados.
+- Implementação: usar pose congelada sobre um deslocamento controlado no motor
+  de bonecos; desativar `squash`, `drag`, `blur`, piscadas e passos automáticos.
+  O resultado deve ser validado por stills e por uma prévia curta antes de
+  qualquer vídeo completo.
+- Consequência: a documentação e o relatório do M2 devem distinguir
+  “translação global” de “movimento articulado”.
+
+## D024 — Motor de bonecos em 480p e headless Chrome local
+
+- Data: 2026-11-14
+- Decisão: executar `render.mjs frames` usando o Node.js e o Playwright-core localizado em `C:\Users\Pires\StickFilms`, gerando 150 quadros a 30 fps em resolução 854x480 na CPU.
+- Motivo: estilo 100% em CPU sem necessidade de GPU, garantindo que o primeiro estilo funcione mesmo em computadores sem aceleração gráfica.
+
+## D025 — Suporte a silêncio absoluto no medidor de volume (-6 dBTP)
+
+- Data: 2026-11-14
+- Decisão: tratar valores `-inf dBFS` reportados pelo filtro `ebur128` do FFmpeg como silêncio absoluto seguro (-70.0 dBTP), atribuindo veredito verde na ausência de áudio ofensivo ou elevado.
+- Motivo: clipes sintéticos ou trechos sem voz não devem ser penalizados com aviso amarelo quando não há qualquer risco de volume excessivo.
+
+## D026 — Integração e hospedagem da interface estática via FastAPI
+
+- Data: 2026-11-14
+- Decisão: o backend FastAPI monta e serve a pasta `frontend/dist` na raiz `/` e a pasta do projeto em `/media`, unificando a inicialização do app em um único processo e porta (8765).
+- Motivo: simplifica o uso para o usuário, permitindo abrir o estúdio diretamente pelo `iniciar.bat` sem necessidade de múltiplos servidores locais abertos em paralelo.
+
 ## Pendências de decisão
 
 - Definir se o EffectCraft entra no piloto do M5/M6.

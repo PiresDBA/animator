@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-base-950 text-slate-200 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Foco visivel e consistente (WCAG 2.4.7) */
+  :focus-visible {
+    @apply outline-none ring-2 ring-acento ring-offset-2 ring-offset-base-950;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-base-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-base-600;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-base-500;
+  }
+}
+
+@layer components {
+  .cartao {
+    @apply rounded-xl border border-base-700 bg-base-850 shadow-paine;
+  }
+
+  .cartao-titulo {
+    @apply text-sm font-semibold tracking-wide text-slate-200;
+  }
+
+  .rotulo {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400;
+  }
+
+  .campo {
+    @apply w-full rounded-lg border border-base-600 bg-base-900 px-3 py-2 text-sm text-slate-100
+      placeholder:text-slate-500 transition-colors hover:border-base-500
+      focus:border-acento focus:outline-none focus:ring-1 focus:ring-acento;
+  }
+
+  .rotulo-campo {
+    @apply mb-1 block text-xs font-medium text-slate-300;
+  }
+
+  .botao {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium
+      transition-colors disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .botao-primario {
+    @apply botao bg-acento text-base-950 hover:bg-acento-suave;
+  }
+
+  .botao-secundario {
+    @apply botao border border-base-600 bg-base-800 text-slate-200 hover:border-acento hover:text-acento;
+  }
+
+  .botao-fantasma {
+    @apply botao text-slate-300 hover:bg-base-800 hover:text-slate-100;
+  }
+
+  .botao-perigo {
+    @apply botao border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-base-600 bg-base-800 px-2 py-0.5
+      text-[11px] font-medium text-slate-300;
+  }
+}
+
+/* Respeita a preferencia de movimento reduzido do sistema */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

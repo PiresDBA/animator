@@ -5,7 +5,7 @@ confirmados ou projeto da VideoFactoryAI) em versões animadas para crianças de
 7 a 10 anos, com prévia obrigatória e aprovação humana antes de qualquer vídeo
 completo.
 
-## Estado atual: M0 aprovado; M1 concluído tecnicamente, aguardando aprovação
+## Estado atual: M0 e M1 aprovados; M2 em andamento
 
 - Estrutura do projeto criada.
 - Descoberta de hardware, programas e modelos implementada (somente leitura) e
@@ -14,8 +14,10 @@ completo.
 - Licenças levantadas em `docs/licencas.md` e atualizadas com os modelos do M1.
 - M1: análise de vídeo concluída no golden set sintético de 3 clipes de 10 s;
   3 JSONs validados, 23 testes OK e prévias em `docs/evidencias/m1/`.
+- M1 aprovado pelo usuário em 2026-11-14, com a ressalva de que a cena 2 mostra
+  dois bonecos rígidos deslizando, sem animação de membros.
 - Dependências fixadas em `requirements.txt`; modelos e caches em `.cache/`.
-- Nenhuma geração de vídeo foi executada ainda.
+- Nenhum vídeo completo foi gerado; o M2 produz apenas uma prévia curta.
 - A interface gráfica entra a partir do M2; `iniciar.bat` ainda é um painel de
   diagnóstico, não o app final.
 
@@ -103,7 +105,7 @@ prévias de profundidade, máscara e pose. Por padrão usa CUDA se disponível,
 
 ## Marco atual
 
-M1 concluído tecnicamente: análise de vídeo (cenas, movimento, profundidade,
-máscaras, pose e fala) com schema validado no golden set de 3 clipes de 10 s.
-O ambiente Python fica em `.venv` e os modelos em `.cache/`; falta a aprovação
-humana para iniciar o M2 (primeira prévia vertical com o motor de bonecos).
+M2 em andamento: primeira prévia vertical com o motor de bonecos, usando dois
+personagens rígidos que deslizam, se encaram, se encostam e voltam sem animação
+de membros. Nenhum vídeo completo antes do portão do M3. O ambiente Python fica
+em `.venv` e os modelos em `.cache/`.
