@@ -17,39 +17,53 @@ HOST_COMFY = "127.0.0.1:8188"
 PROMPTS_ESTILOS = {
     "anime": {
         "positivo": (
-            "masterpiece, best quality, makoto shinkai anime movie aesthetic, "
-            "beautiful 2d animated cel, sharp lineart, vibrant studio ghibli lighting, "
-            "expressive character, highly detailed anime scenery, cinematic"
+            "masterpiece, best quality, Makoto Shinkai and Studio Ghibli anime feature film, "
+            "vibrant cel shading, lush scenic sky with volumetric clouds, bright golden sunbeams, "
+            "crystal clean sharp lineart, expressive anime character with lively fluid motion, "
+            "gorgeous colorful anime palette, cinematic composition, highly detailed, 8k"
         ),
-        "negativo": "photorealistic, realistic, 3d, blurry, lowres, watermark, text, deformed, extra limbs, ugly",
-        "denoise": 0.62,
+        "negativo": (
+            "dark, murky, muddy, pitch black, underexposed, realistic photo, 3d render, "
+            "lowres, blurry, bad anatomy, deformed limbs, text, watermarks, grainy, glitch, ugly"
+        ),
+        "denoise": 0.78,
     },
     "cartoon": {
         "positivo": (
-            "masterpiece, best quality, cute 3d pixar disney movie render, "
-            "stylized 3d character, subsurface scattering, soft studio lighting, "
-            "raytracing, octane render, smooth surfaces, charming expressions"
+            "masterpiece, best quality, Disney Pixar 3D animated movie, "
+            "cute charming stylized 3D character, soft studio key light and rim lighting, "
+            "subsurface scattering, Octane 3D render, smooth stylized geometry, "
+            "vibrant cheerful colors, rich volumetric lighting, cinematic depth of field, 4k"
         ),
-        "negativo": "photorealistic, real person, 2d, sketch, flat, blurry, low quality, deformed, extra limbs",
-        "denoise": 0.65,
+        "negativo": (
+            "dark, gloomy, flat 2d, sketch, photorealistic human, ugly, bad hands, deformed, "
+            "text, watermark, low quality, noisy, monochrome"
+        ),
+        "denoise": 0.80,
     },
     "lego": {
         "positivo": (
-            "masterpiece, best quality, lego movie stop-motion animation, "
-            "character as plastic lego minifigure, toy world made of shiny lego bricks with studs, "
-            "miniature tilt-shift photography, depth of field, cinematic lighting"
+            "masterpiece, best quality, The Lego Movie cinematic animation, "
+            "stop-motion plastic miniature aesthetic, shiny plastic minifigure character with glossy reflection, "
+            "world completely built of colorful Lego bricks with authentic studs, "
+            "tactile glossy materials, tilt-shift macro lens, cinematic studio lighting"
         ),
-        "negativo": "human, flesh, photorealistic person, blurry, lowres, watermark, deformed, bad anatomy",
-        "denoise": 0.68,
+        "negativo": (
+            "human flesh, realistic skin, flat 2d, dark, blurry, deformed, text, watermark, ugly"
+        ),
+        "denoise": 0.82,
     },
     "3d": {
         "positivo": (
-            "masterpiece, best quality, unreal engine 5 cinematic 3d render, "
-            "cinematic pbr materials, volumetric lighting, raytraced shadows, "
-            "detailed textures, photorealistic cgi film quality, 8k"
+            "masterpiece, best quality, Unreal Engine 5 cinematic animated CGI film, "
+            "stylized 3D character with PBR materials, volumetric god rays, "
+            "raytraced ambient occlusion and reflections, rich color grading, "
+            "Pixar Dreamworks cinematic quality, vivid vibrant colors, 8k render"
         ),
-        "negativo": "cartoon, 2d, drawing, sketch, blurry, low quality, artifacts, watermark, deformed",
-        "denoise": 0.58,
+        "negativo": (
+            "2d drawing, sketch, flat, murky, dark, noisy, lowres, deformed, bad anatomy, text, watermark"
+        ),
+        "denoise": 0.78,
     },
 }
 
@@ -68,17 +82,21 @@ def comfy_disponivel() -> bool:
 def construir_grafo_animatediff(
     caminho_video: Path,
     estilo: str = "anime",
-    duracao_s: float = 3.0,
-    fps: int = 15,
+    duracao_s: float = 2.0,
+    fps: int = 12,
     seed: int = 42,
 ) -> dict[str, Any]:
-    """Monta o workflow de AnimateDiff Video-to-Video no formato nativo da API do ComfyUI."""
+    """Monta o workflow de AnimateDiff Video-to-Video no formato nativo da API do ComfyUI.
+
+    Utiliza ADE_AnimateDiffUniformContextOptions para permitir processamento com janela
+    deslizante estavel e coerencia temporal cinematografica.
+    """
     cfg_estilo = PROMPTS_ESTILOS.get(estilo, PROMPTS_ESTILOS["anime"])
     prompt_pos = cfg_estilo["positivo"]
     prompt_neg = cfg_estilo["negativo"]
     denoise = cfg_estilo["denoise"]
 
-    total_frames = max(8, min(48, int(round(duracao_s * fps))))
+    total_frames = max(8, min(24, int(round(duracao_s * fps))))
 
     prompt = {
         # 1. Carregador de Checkpoint
@@ -88,11 +106,23 @@ def construir_grafo_animatediff(
                 "ckpt_name": "dreamshaper_8.safetensors",
             },
         },
-        # 2. Carregador do AnimateDiff
+        # 10. Opcoes de Janela de Contexto Uniforme do AnimateDiff
+        "10": {
+            "class_type": "ADE_AnimateDiffUniformContextOptions",
+            "inputs": {
+                "context_length": 16,
+                "context_stride": 1,
+                "context_overlap": 4,
+                "context_schedule": "uniform",
+                "closed_loop": False,
+            },
+        },
+        # 2. Carregador do AnimateDiff com contexto
         "2": {
             "class_type": "ADE_AnimateDiffLoaderWithContext",
             "inputs": {
                 "model": ["1", 0],
+                "context_options": ["10", 0],
                 "model_name": "mm_sd_v15_v2.ckpt",
                 "beta_schedule": "sqrt_linear (AnimateDiff)",
             },
@@ -103,8 +133,8 @@ def construir_grafo_animatediff(
             "inputs": {
                 "video": str(caminho_video.resolve()).replace("\\", "/"),
                 "force_rate": float(fps),
-                "custom_width": 512,
-                "custom_height": 512,
+                "custom_width": 384,
+                "custom_height": 384,
                 "frame_load_cap": total_frames,
                 "skip_first_frames": 0,
                 "select_every_nth": 1,
@@ -144,7 +174,7 @@ def construir_grafo_animatediff(
                 "latent_image": ["4", 0],
                 "seed": seed,
                 "steps": 14,
-                "cfg": 6.5,
+                "cfg": 7.0,
                 "sampler_name": "dpmpp_2m",
                 "scheduler": "karras",
                 "denoise": denoise,
@@ -189,7 +219,7 @@ def disparar_geracao(prompt_grafo: dict[str, Any]) -> str:
         return resultado.get("prompt_id")
 
 
-def aguardar_conclusao(prompt_id: str, timeout_s: float = 300.0) -> dict[str, Any] | None:
+def aguardar_conclusao(prompt_id: str, timeout_s: float = 1200.0) -> dict[str, Any] | None:
     """Aguarda o fim da execucao consultando o historico do ComfyUI."""
     inicio = time.time()
     url = f"http://{HOST_COMFY}/history/{prompt_id}"
@@ -208,13 +238,18 @@ def aguardar_conclusao(prompt_id: str, timeout_s: float = 300.0) -> dict[str, An
 
 def extrair_caminho_video_saida(historico: dict[str, Any]) -> Path | None:
     """Localiza o arquivo de video MP4 gerado na saida do VHS_VideoCombine."""
+    status_info = historico.get("status", {})
+    if status_info.get("status_str") == "error":
+        msgs = status_info.get("messages", [])
+        print(f"[ComfyUI] Erro na execucao: {msgs}")
+        return None
+
     saidas = historico.get("outputs", {})
     for node_id, dados_node in saidas.items():
         gifs = dados_node.get("gifs", []) or dados_node.get("images", [])
         for item in gifs:
             filename = item.get("filename")
             subfolder = item.get("subfolder", "")
-            tipo = item.get("type", "output")
             if filename and filename.endswith(".mp4"):
                 comfy_out = Path(r"D:\Comfy\ComfyUI\output")
                 caminho = comfy_out / subfolder / filename
@@ -227,7 +262,7 @@ def renderizar_animacao_alta_qualidade(
     caminho_video: Path,
     estilo: str,
     destino_mp4: Path,
-    duracao_s: float = 3.0,
+    duracao_s: float = 2.0,
     seed: int = 42,
 ) -> bool:
     """Executa o pipeline completo de renderizacao AnimateDiff em alta fidelidade."""
@@ -238,7 +273,7 @@ def renderizar_animacao_alta_qualidade(
         caminho_video=caminho_video,
         estilo=estilo,
         duracao_s=duracao_s,
-        fps=15,
+        fps=12,
         seed=seed,
     )
 
@@ -246,12 +281,12 @@ def renderizar_animacao_alta_qualidade(
     if not prompt_id:
         return False
 
-    historico = aguardar_conclusao(prompt_id, timeout_s=360.0)
+    historico = aguardar_conclusao(prompt_id, timeout_s=1200.0)
     if not historico:
         return False
 
     caminho_gerado = extrair_caminho_video_saida(historico)
-    if caminho_gerado and caminho_gerado.is_file():
+    if caminho_gerado and caminho_gerado.is_file() and caminho_gerado.stat().st_size > 50_000:
         import shutil
         destino_mp4.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(caminho_gerado, destino_mp4)

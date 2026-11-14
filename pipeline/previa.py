@@ -131,7 +131,7 @@ def executar(
                     caminho_video=caminho_video,
                     estilo=estilo,
                     destino_mp4=arquivo_mp4,
-                    duracao_s=min(3.0, duracao_s),
+                    duracao_s=min(2.0, duracao_s),
                     seed=seed,
                 )
             except Exception:

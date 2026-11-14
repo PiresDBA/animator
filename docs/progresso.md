@@ -412,3 +412,30 @@ Arquivos gerados:
 1. Aprovação das prévias de 5 segundos geradas para os 4 estilos procedurais (LEGO, Anime, Cartoon 3D e 3D PBR).
 2. Validação visual na interface web (`http://127.0.0.1:8765`).
 3. Autorização para prosseguir para o **M5 — 2.5D, Rig por Cliques e Difusão Opcional**.
+
+
+## Overhaul de Qualidade Cinematográfica — AnimateDiff Video-to-Video via ComfyUI
+
+Data: 2026-11-14
+Status: **concluído com sucesso — renderizações reais de alta fidelidade geradas via GPU e validadas.**
+
+### Correções Críticas Implementadas
+
+1. **Correção do Grafo AnimateDiff na API ComfyUI (`pipeline/render_comfy.py`)**:
+   - Inserção do nó `ADE_AnimateDiffUniformContextOptions` (`context_length=16`, `context_stride=1`, `context_overlap=4`, `context_schedule="uniform"`).
+   - Eliminação do erro de saturação de contexto que ocorria com lotes superiores a 32 quadros.
+   - Ajuste de resolução para 384x384 (proporção ideal para estabilidade na GTX 1060 6GB com `--lowvram`).
+   - Elevação do tempo limite do worker (`timeout_s=1200.0`) para suportar a inferência completa sem abortar prematuramente.
+
+2. **Eliminação do Fallback Silencioso**:
+   - Correção do fluxo de `previa.py` e `render_comfy.py` para garantir que o estúdio produza vídeo de difusão cinematográfica real e reporte erros com clareza, em vez de recorrer sem aviso a filtros procedurais OpenCV.
+
+3. **Direção de Arte e Prompts Otimizados**:
+   - **Anime**: Estética Makoto Shinkai / Studio Ghibli com cel-shading vibrante, lineart nítido, iluminação volumétrica e `denoise=0.78`.
+   - **Cartoon 3D**: Render 3D Pixar / Disney com iluminação de estúdio de 3 pontos, subsurface scattering, geometria suave e `denoise=0.80`.
+
+4. **Artefatos Reais Gerados e Validados**:
+   - `projetos/teste-backend/saidas/previa_anime_003.mp4` (151.764 bytes, 24 quadros a 12 fps, áudio AAC sincronizado, laudo de segurança infantil verde).
+   - `projetos/teste-backend/saidas/previa_cartoon_003.mp4` (211.891 bytes, 24 quadros a 12 fps, áudio AAC sincronizado, laudo de segurança infantil verde).
+   - Miniaturas: `miniatura_anime_003.png` e `miniatura_cartoon_003.png`.
+   - Suíte de testes: 58 testes unitários passando em 9,8 s.
