@@ -1,0 +1,73 @@
+{
+  "versao": 1,
+  "gerado_em": "2026-11-14T13:19:52+00:00",
+  "fonte": "sintetica",
+  "gerado_por": "tests/golden/gerar_golden.py",
+  "voz": {
+    "ferramenta": "craft_voice",
+    "provider": "piper",
+    "voice": "pt_BR-faber-medium",
+    "profile": "infantil",
+    "elapsed_s": [
+      5.72,
+      4.94
+    ]
+  },
+  "licenca": "gerado localmente; sem material de terceiros",
+  "clipes": [
+    {
+      "id": "clipe_01_estatico",
+      "descricao": "Personagem sintético parado; uma cena; fala presente.",
+      "cenas_esperadas": 1,
+      "fala_esperada": true,
+      "arquivo": "clipe_01_estatico.mp4",
+      "duracao_s": 10.0,
+      "bytes": 183813,
+      "sha256": "0e02e5c892659983b3737edc84aaf0d31413d351ec011f43d0a548a333bb41da",
+      "resolucao": [
+        1280,
+        720
+      ],
+      "fps": "30/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_presente": true
+    },
+    {
+      "id": "clipe_02_acao",
+      "descricao": "Duas figuras em movimento; cortes de fundo em 3 s e 6 s; sem fala.",
+      "cenas_esperadas": 3,
+      "fala_esperada": false,
+      "arquivo": "clipe_02_acao.mp4",
+      "duracao_s": 10.0,
+      "bytes": 251281,
+      "sha256": "e4074063bfa8c1b098c0131a2270b8745f9f4f22c7cab92d609355137f5aac30",
+      "resolucao": [
+        1280,
+        720
+      ],
+      "fps": "30/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_presente": true
+    },
+    {
+      "id": "clipe_03_texto",
+      "descricao": "Cartela de texto com fade; uma cena; fala presente.",
+      "cenas_esperadas": 1,
+      "fala_esperada": true,
+      "arquivo": "clipe_03_texto.mp4",
+      "duracao_s": 10.0,
+      "bytes": 239339,
+      "sha256": "83228befd3d749e7124a2b1525b5ab804e2c0f0395296b608424926763ee6e9b",
+      "resolucao": [
+        1280,
+        720
+      ],
+      "fps": "30/1",
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "audio_presente": true
+    }
+  ]
+}

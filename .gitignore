@@ -14,3 +14,10 @@ projetos/*
 saidas/*
 !saidas/.gitkeep
 tests/.tmp*/
+tests/golden/.tmp*/
+tests/golden/.frames_*/
+tests/golden/.audio_*/
+tests/golden/*.wav
+*.pt
+*.onnx
+*.safetensors

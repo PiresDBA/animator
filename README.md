@@ -5,14 +5,16 @@ confirmados ou projeto da VideoFactoryAI) em versões animadas para crianças de
 7 a 10 anos, com prévia obrigatória e aprovação humana antes de qualquer vídeo
 completo.
 
-## Estado atual: M0 aprovado; M1 em andamento
+## Estado atual: M0 aprovado; M1 concluído tecnicamente, aguardando aprovação
 
 - Estrutura do projeto criada.
 - Descoberta de hardware, programas e modelos implementada (somente leitura) e
   tabela confirmada pelo usuário.
 - Teste real de GPU implementado.
-- Licenças levantadas em `docs/licencas.md`.
-- M1: análise de vídeo com golden set sintético de 3 clipes de 10 s.
+- Licenças levantadas em `docs/licencas.md` e atualizadas com os modelos do M1.
+- M1: análise de vídeo concluída no golden set sintético de 3 clipes de 10 s;
+  3 JSONs validados, 23 testes OK e prévias em `docs/evidencias/m1/`.
+- Dependências fixadas em `requirements.txt`; modelos e caches em `.cache/`.
 - Nenhuma geração de vídeo foi executada ainda.
 - A interface gráfica entra a partir do M2; `iniciar.bat` ainda é um painel de
   diagnóstico, não o app final.
@@ -33,7 +35,8 @@ estudio/
   backend/          FastAPI, websocket, fila SQLite, serviços (a partir do M1)
   frontend/         React + Vite + TypeScript + Tailwind (a partir do M2)
   descoberta/       hardware.py, programas.py, varredura.py, modelos.py, teste_gpu.py
-  pipeline/         etapas de ingestão, análise, prévia e composição
+  pipeline/         análise do M1: vídeo, cenas, movimento, profundidade,
+                    máscaras, pose, fala, schema e CLI
   tecnicas/         rig, parallax, mosaico, contornos, toon3d, bonecos, difusão
   estilos/          presets dos cinco estilos
   remotion/         composições de cena (a partir do M2)
@@ -42,7 +45,8 @@ estudio/
   saidas/           MP4s, miniaturas e recibos
   tests/            testes unitários, de segurança, de interface e golden set
   tools/ffmpeg/     FFmpeg 8.1 local (GPLv3; binários fora do git)
-  docs/             decisões, progresso, licenças, limitações
+  .cache/           modelos e caches locais (fora do git)
+  docs/             decisões, progresso, licenças, limitações e evidências
 ```
 
 ## Comandos de M0
@@ -64,6 +68,32 @@ py -3.12 descoberta\modelos.py --comfyui "D:\Comfy\ComfyUI" --salvar
 py -3.12 -m unittest discover -s tests -v
 ```
 
+## Comandos do M1
+
+```powershell
+# Criar o ambiente e instalar as versões fixadas (torch cu126 + av 15.1.0)
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install --only-binary=:all: --no-deps -r requirements.txt
+
+# Analisar um clipe do golden set
+.\.venv\Scripts\python.exe -m pipeline.analisar `
+  --video tests\golden\clipe_02_acao.mp4 `
+  --saida docs\evidencias\m1\clipe_02_acao.json `
+  --previa-dir docs\evidencias\m1\previa_clipe_02
+
+# Etapas individuais podem ser desativadas para testes rápidos
+.\.venv\Scripts\python.exe -m pipeline.analisar --video tests\golden\clipe_01_estatico.mp4 `
+  --sem-profundidade --sem-mascara --sem-pose --sem-fala --sem-previas
+
+# Testes unitários (descoberta + análise)
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+O CLI grava um JSON validado pelo schema `pipeline/schemas/analise_v1.json` e
+prévias de profundidade, máscara e pose. Por padrão usa CUDA se disponível,
+`fps_amostra=2.0`, `limiar_cena=27.0` e faster-whisper `small` em português.
+
 ## Hardware de referência
 
 - Windows 11, i7-7700HQ (4C/8T), 32 GB RAM.
@@ -73,6 +103,7 @@ py -3.12 -m unittest discover -s tests -v
 
 ## Marco atual
 
-M1: análise de vídeo (cenas, movimento, profundidade, máscaras, pose e fala)
-com schema validado, usando o golden set de 3 clipes de 10 s. O ambiente Python
-do pipeline fica em `.venv` dentro do projeto.
+M1 concluído tecnicamente: análise de vídeo (cenas, movimento, profundidade,
+máscaras, pose e fala) com schema validado no golden set de 3 clipes de 10 s.
+O ambiente Python fica em `.venv` e os modelos em `.cache/`; falta a aprovação
+humana para iniciar o M2 (primeira prévia vertical com o motor de bonecos).

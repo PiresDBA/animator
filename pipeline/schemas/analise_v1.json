@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://estudio.local/schemas/analise_v1.json",
+  "title": "Analise de video v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "versao",
+    "gerado_em",
+    "status",
+    "video",
+    "config",
+    "cenas",
+    "movimento",
+    "profundidade",
+    "mascaras",
+    "pose",
+    "fala",
+    "medidas",
+    "avisos",
+    "erros"
+  ],
+  "properties": {
+    "versao": {
+      "const": 1
+    },
+    "gerado_em": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": ["ok", "parcial"]
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "arquivo",
+        "sha256",
+        "duracao_s",
+        "fps",
+        "largura",
+        "altura",
+        "tamanho_bytes",
+        "video_codec",
+        "audio_codec",
+        "audio_presente",
+        "audio_canais",
+        "audio_taxa"
+      ],
+      "properties": {
+        "arquivo": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "duracao_s": {"type": "number", "exclusiveMinimum": 0},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "largura": {"type": "integer", "minimum": 1},
+        "altura": {"type": "integer", "minimum": 1},
+        "tamanho_bytes": {"type": "integer", "minimum": 1},
+        "video_codec": {"type": ["string", "null"]},
+        "audio_codec": {"type": ["string", "null"]},
+        "audio_presente": {"type": "boolean"},
+        "audio_canais": {"type": ["integer", "null"]},
+        "audio_taxa": {"type": ["integer", "null"]}
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fps_amostra",
+        "limiar_cena",
+        "min_cena_frames",
+        "dispositivo",
+        "modelos",
+        "etapas_ativas"
+      ],
+      "properties": {
+        "fps_amostra": {"type": "number", "exclusiveMinimum": 0},
+        "limiar_cena": {"type": "number"},
+        "min_cena_frames": {"type": "integer", "minimum": 1},
+        "dispositivo": {"enum": ["cuda", "cpu"]},
+        "modelos": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profundidade", "mascaras", "pose", "fala"],
+          "properties": {
+            "profundidade": {"type": "string"},
+            "mascaras": {"type": "string"},
+            "pose": {"type": "string"},
+            "fala": {"type": "string"}
+          }
+        },
+        "etapas_ativas": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profundidade", "mascaras", "pose", "fala"],
+          "properties": {
+            "profundidade": {"type": "boolean"},
+            "mascaras": {"type": "boolean"},
+            "pose": {"type": "boolean"},
+            "fala": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "cenas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["indice", "inicio_s", "fim_s", "duracao_s"],
+        "properties": {
+          "indice": {"type": "integer", "minimum": 0},
+          "inicio_s": {"type": "number", "minimum": 0},
+          "fim_s": {"type": "number", "minimum": 0},
+          "duracao_s": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "movimento": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["por_amostra", "resumo"],
+      "properties": {
+        "por_amostra": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["t", "dif_media", "fluxo_medio", "fluxo_p95"],
+            "properties": {
+              "t": {"type": "number", "minimum": 0},
+              "dif_media": {"type": ["number", "null"], "minimum": 0},
+              "fluxo_medio": {"type": ["number", "null"], "minimum": 0},
+              "fluxo_p95": {"type": ["number", "null"], "minimum": 0}
+            }
+          }
+        },
+        "resumo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dif_media_media",
+            "dif_media_pico",
+            "fluxo_medio_media",
+            "fluxo_medio_pico"
+          ],
+          "properties": {
+            "dif_media_media": {"type": "number", "minimum": 0},
+            "dif_media_pico": {"type": "number", "minimum": 0},
+            "fluxo_medio_media": {"type": "number", "minimum": 0},
+            "fluxo_medio_pico": {"type": "number", "minimum": 0}
+          }
+        }
+      }
+    },
+    "profundidade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modelo", "dispositivo", "por_amostra", "previas", "tempo_s", "erro"],
+      "properties": {
+        "modelo": {"type": "string"},
+        "dispositivo": {"type": "string"},
+        "por_amostra": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["t", "min", "max", "media", "desvio", "percentis"],
+            "properties": {
+              "t": {"type": "number", "minimum": 0},
+              "min": {"type": "number"},
+              "max": {"type": "number"},
+              "media": {"type": "number"},
+              "desvio": {"type": "number"},
+              "percentis": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {"type": "number"}
+              }
+            }
+          }
+        },
+        "previas": {"type": "array", "items": {"type": "string"}},
+        "tempo_s": {"type": "number", "minimum": 0},
+        "erro": {"type": ["string", "null"]}
+      }
+    },
+    "mascaras": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modelo", "por_amostra", "previas", "tempo_s", "erro"],
+      "properties": {
+        "modelo": {"type": "string"},
+        "por_amostra": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["t", "area_ratio", "bbox", "componentes", "areas_px"],
+            "properties": {
+              "t": {"type": "number", "minimum": 0},
+              "area_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+              "bbox": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {"type": "integer", "minimum": 0}
+                  },
+                  {"type": "null"}
+                ]
+              },
+              "componentes": {"type": "integer", "minimum": 0},
+              "areas_px": {
+                "type": "array",
+                "items": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        },
+        "previas": {"type": "array", "items": {"type": "string"}},
+        "tempo_s": {"type": "number", "minimum": 0},
+        "erro": {"type": ["string", "null"]}
+      }
+    },
+    "pose": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modelo",
+        "pesos",
+        "conf_min",
+        "por_amostra",
+        "previas",
+        "total_deteccoes",
+        "tempo_s",
+        "erro",
+        "licenca"
+      ],
+      "properties": {
+        "modelo": {"type": "string"},
+        "pesos": {"type": "string"},
+        "conf_min": {"type": "number", "minimum": 0, "maximum": 1},
+        "por_amostra": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["t", "pessoas", "deteccoes"],
+            "properties": {
+              "t": {"type": "number", "minimum": 0},
+              "pessoas": {"type": "integer", "minimum": 0},
+              "deteccoes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["caixa", "conf", "pontos"],
+                  "properties": {
+                    "caixa": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "items": {"type": "number"}
+                    },
+                    "conf": {"type": "number", "minimum": 0, "maximum": 1},
+                    "pontos": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {"type": "number"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "previas": {"type": "array", "items": {"type": "string"}},
+        "total_deteccoes": {"type": "integer", "minimum": 0},
+        "tempo_s": {"type": "number", "minimum": 0},
+        "erro": {"type": ["string", "null"]},
+        "licenca": {"type": "string"}
+      }
+    },
+    "fala": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modelo",
+        "dispositivo",
+        "compute_type",
+        "idioma",
+        "prob_idioma",
+        "fala_presente",
+        "texto",
+        "segmentos",
+        "tempo_s",
+        "erro",
+        "aviso"
+      ],
+      "properties": {
+        "modelo": {"type": "string"},
+        "dispositivo": {"type": ["string", "null"]},
+        "compute_type": {"type": ["string", "null"]},
+        "idioma": {"type": ["string", "null"]},
+        "prob_idioma": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "fala_presente": {"type": "boolean"},
+        "texto": {"type": "string"},
+        "segmentos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "inicio_s",
+              "fim_s",
+              "texto",
+              "avg_logprob",
+              "no_speech_prob"
+            ],
+            "properties": {
+              "inicio_s": {"type": "number", "minimum": 0},
+              "fim_s": {"type": "number", "minimum": 0},
+              "texto": {"type": "string"},
+              "avg_logprob": {"type": ["number", "null"]},
+              "no_speech_prob": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "tempo_s": {"type": "number", "minimum": 0},
+        "erro": {"type": ["string", "null"]},
+        "aviso": {"type": ["string", "null"]}
+      }
+    },
+    "medidas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tempo_total_s", "por_etapa_s", "gpu"],
+      "properties": {
+        "tempo_total_s": {"type": "number", "minimum": 0},
+        "por_etapa_s": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cenas", "movimento", "profundidade", "mascaras", "pose", "fala"],
+          "properties": {
+            "cenas": {"type": "number", "minimum": 0},
+            "movimento": {"type": "number", "minimum": 0},
+            "profundidade": {"type": "number", "minimum": 0},
+            "mascaras": {"type": "number", "minimum": 0},
+            "pose": {"type": "number", "minimum": 0},
+            "fala": {"type": "number", "minimum": 0}
+          }
+        },
+        "gpu": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "amostras",
+            "vram_inicio_mb",
+            "vram_fim_mb",
+            "vram_pico_mb",
+            "vram_total_mb",
+            "temp_max_c",
+            "util_max_pct",
+            "nota",
+            "erros"
+          ],
+          "properties": {
+            "amostras": {"type": "integer", "minimum": 0},
+            "vram_inicio_mb": {"type": ["number", "null"]},
+            "vram_fim_mb": {"type": ["number", "null"]},
+            "vram_pico_mb": {"type": ["number", "null"]},
+            "vram_total_mb": {"type": ["number", "null"]},
+            "temp_max_c": {"type": ["number", "null"]},
+            "util_max_pct": {"type": ["number", "null"]},
+            "nota": {"type": "string"},
+            "erros": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "avisos": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "erros": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["etapa", "mensagem"],
+        "properties": {
+          "etapa": {"type": "string"},
+          "mensagem": {"type": "string"}
+        }
+      }
+    }
+  }
+}

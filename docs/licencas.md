@@ -32,6 +32,44 @@ não cobrir os pesos).
 | Remotion | Não instalado | Free License para indivíduos e empresas de até 3 pessoas; licença empresarial acima disso | https://www.remotion.dev/license | Uso declarado: pessoal/educacional; revalidar antes de uso comercial |
 | Playwright / Chrome | Não confirmado | Playwright Apache-2.0; Chrome proprietário | A confirmar na instalação | Necessário ao motor stick-film |
 | yt-dlp | Não instalado | Unlicense (domínio público) | A confirmar na instalação | Entrada YouTube com direitos confirmados |
+| Craft Voice / Piper | Local em `D:\CRAFT\VoiceCraft` | A confirmar na instalação | D021; golden set usou provider `piper` | Voz local `pt_BR-faber-medium`; não usar provedores cloud |
+
+## Dependências Python do M1
+
+Versões exatas em `requirements.txt`. A instalação usa `--no-deps` e
+`opencv-python-headless`; por isso o `pip check` pode listar dependências
+opcionais ausentes (ver `docs/limitacoes.md`).
+
+| Componente | Versão | Licença | Evidência | Situação |
+|---|---|---|---|---|
+| PyTorch | 2.6.0+cu126 | BSD-3-Clause | Metadados do pacote no `.venv` | Uso local; CUDA 12.6 |
+| torchvision | 0.21.0+cu126 | BSD-3-Clause | Metadados do pacote no `.venv` | Uso local |
+| Transformers | 4.49.0 | Apache-2.0 | Metadados do pacote no `.venv` | Pipeline de profundidade |
+| Ultralytics | 8.4.212 | **AGPL-3.0** | Metadados do pacote | Uso pessoal/educacional; ver D018 |
+| ultralytics-thop | 2.2.5 | AGPL-3.0 | Metadados do pacote | Dependência do Ultralytics |
+| faster-whisper | 1.2.1 | MIT | Metadados do pacote | Transcrição local |
+| CTranslate2 | 4.9.0 | MIT | Metadados do pacote | Backend do faster-whisper |
+| PyAV (`av`) | 15.1.0 | BSD-3-Clause | Metadados do pacote | Fixado por D022 |
+| rembg | 2.0.87 | MIT | Metadados do pacote | Código MIT; pesos U2Net à parte |
+| onnxruntime | 1.32.0 | MIT | Metadados do pacote | Backend do rembg |
+| PySceneDetect | 0.7.3 | BSD-3-Clause | Metadados do pacote | Detecção de cenas |
+| OpenCV headless | 5.0.0.93 | Apache-2.0 | Metadados do pacote | Substitui `opencv-python` |
+| NumPy | 2.5.4 | BSD-3-Clause | Metadados do pacote | Base numérica |
+| Pillow | 13.0.0 | HPND | Metadados do pacote | Imagens |
+| jsonschema | 4.26.0 | MIT | Metadados do pacote | Validação do schema v1 |
+| huggingface_hub | 0.36.2 | Apache-2.0 | Metadados do pacote | Download de modelos |
+| tokenizers | 0.21.4 | Apache-2.0 | Metadados do pacote | Tokenização do Whisper |
+| safetensors | 0.8.0 | Apache-2.0 | Metadados do pacote | Pesos do Depth Anything |
+| SciPy | 1.18.1 | BSD-3-Clause | Metadados do pacote | Dependência transitiva |
+| scikit-image | 0.26.0 | BSD-3-Clause | Metadados do pacote | Dependência do rembg |
+| Numba | 0.68.1 | BSD-2-Clause | Metadados do pacote | Dependência transitiva |
+| Matplotlib | 3.11.2 | Licença Matplotlib (PSF) | Metadados do pacote | Dependência do Ultralytics |
+| pandas | 3.1.1 | BSD-3-Clause | Metadados do pacote | Dependência do Ultralytics |
+| psutil | 7.2.2 | BSD-3-Clause | Metadados do pacote | Dependência do Ultralytics |
+| PyMatting | 1.1.16 | MIT | Metadados do pacote | Dependência do rembg |
+| pooch | 1.9.0 | BSD-3-Clause | Metadados do pacote | Dependência do scikit-image |
+| tqdm | 4.70.1 | MPL-2.0 AND MIT | Metadados do pacote | Barras de progresso |
+| requests | 2.34.2 | Apache-2.0 | Metadados do pacote | HTTP local para downloads |
 
 ## Modelos já instalados no ComfyUI
 
@@ -46,20 +84,33 @@ não cobrir os pesos).
 | CLIP ViT-H-14 laion2B | `clip_vision\CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors` | MIT | Card HF `laion/CLIP-ViT-H-14-laion2B-s32B-b79K` | Suporte ao IP-Adapter |
 
 Não há ControlNet, LCM-LoRA, modelos de segmentação, profundidade, pose ou fala
-instalados no ComfyUI no momento desta verificação.
+instalados no ComfyUI no momento desta verificação. Os modelos do M1 ficam em
+`.cache/`, fora do ComfyUI.
 
-## Modelos planejados (sujeitos a confirmação antes do download)
+## Modelos baixados no M1
+
+| Modelo | Arquivo / cache | Bytes | SHA256 | Licença | Fonte e situação |
+|---|---|---|---|---|---|
+| YOLOv8n-pose | `.cache/modelos/yolov8n-pose.pt` | 6.832.633 | `c6fa93dd1ee4a2c18c900a45c1d864a1c6f7aba75d84f91648a30b7fb641d212` | **AGPL-3.0** | Ultralytics; uso pessoal/educacional (D018); não distribuir o peso nem código derivado |
+| U2Net (rembg) | `.cache/rembg/models/u2net/u2net.onnx` | 175.997.641 | `8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491` | Apache-2.0 | U2-Net via rembg; peso baixado localmente |
+| Depth Anything V2 Small | `.cache/huggingface/hub/models--depth-anything--Depth-Anything-V2-Small-hf/blobs/3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70` (`model.safetensors`) | 99.173.660 | `3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70` | Apache-2.0 | Card `depth-anything/Depth-Anything-V2-Small-hf` |
+| faster-whisper small | `.cache/whisper/models--Systran--faster-whisper-small/blobs/3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671` (`model.bin`) | 483.546.902 | `3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671` | MIT | Conversão `Systran/faster-whisper-small` dos pesos OpenAI Whisper (MIT) |
+
+Observações:
+
+- Os tamanhos e hashes foram medidos localmente com `Get-FileHash` (SHA256) em
+  2026-11-14. O nome do blob do Hugging Face já é o SHA256 do arquivo.
+- Os pesos ficam fora do git (`*.pt`, `*.onnx`, `*.safetensors` e `.cache/` são
+  ignorados). Este documento é o registro de auditoria.
+- O `hf_xet` não está instalado no `.venv`; os downloads continuam funcionando
+  pelo método HTTP normal.
+
+## Outros modelos planejados (sujeitos a confirmação antes do download)
 
 | Modelo / biblioteca | Licença verificada | Fonte | Observação |
 |---|---|---|---|
-| rembg | MIT | `LICENSE.txt` do repositório | Código MIT; pesos do U2Net têm licença própria |
-| U2-Net | Apache-2.0 | `LICENSE` do repositório | Confirmar o peso usado |
-| Depth Anything V2 Small | Apache-2.0 | `LICENSE` do repositório | Confirmar o card do peso |
 | LaMa (preenchimento de fundo) | Apache-2.0 | `LICENSE` do repositório | Confirmar o card do peso |
-| YOLOv8n-pose | **AGPL-3.0** | `LICENSE` do Ultralytics | Restrição forte: uso em rede/distribuição exige revisão; para uso pessoal local, avaliar |
 | MediaPipe | Apache-2.0 | `LICENSE` do repositório | Pose de uma pessoa |
-| faster-whisper | MIT | `LICENSE` do repositório | Transcrição local int8 |
-| Whisper (pesos) | MIT | Repositório OpenAI | Confirmar o card do peso |
 | Rhubarb Lip Sync | MIT | `LICENSE.md` do repositório | Formas de boca |
 | RIFE | MIT | `LICENSE` do repositório | Interpolação |
 | ControlNet | Apache-2.0 (repositório) | `LICENSE` do repositório | Pesos específicos variam; confirmar cada um |
@@ -89,3 +140,8 @@ instalados no ComfyUI no momento desta verificação.
 7. **Marcas**: "LEGO" não aparece na interface; o estilo é exibido como
    "Mosaico de blocos". Nomes de estúdios, franquias e personagens são proibidos
    em prompts e textos.
+8. **Craft Voice/Piper**: a versão e a licença do executável local ainda não
+   foram registradas; o uso atual é apenas local, no golden set. Registrar antes
+   de distribuir áudios ou o aplicativo (D021).
+9. **av 15.1.0**: pin obrigatório enquanto faster-whisper 1.2.1 e CTranslate2
+   4.9.0 forem usados; revalidar antes de atualizar (D022).

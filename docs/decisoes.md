@@ -181,6 +181,40 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
 - Regra: registrar licença, versão, tamanho e hash de cada modelo baixado antes
   de usá-lo no pipeline.
 
+## D021 — Voz local com Craft Voice/Piper
+
+- Data: 2026-11-14
+- Decisão: usar o Craft Voice local em `D:\CRAFT\VoiceCraft`, endpoint
+  `http://127.0.0.1:8090/api/tts`, provider `piper`, voz
+  `pt_BR-faber-medium` e profile `infantil`.
+- Motivo: voz em português totalmente local, adequada ao público 7–10 anos, sem
+  enviar texto para serviços de nuvem. O golden set já foi gerado com essa voz;
+  `tests/golden/manifest.json` registra 5,72 s e 4,94 s de síntese.
+- Alternativa descartada: provedores de voz em nuvem do próprio VoiceCraft ou
+  APIs pagas, por violarem a regra 100% local.
+- Consequência: o VoiceCraft precisa estar em execução para sintetizar. Se
+  estiver indisponível, o pipeline deve bloquear e pedir intervenção, não trocar
+  silenciosamente para um serviço externo. Registrar versão e licença antes de
+  distribuir áudios ou o app.
+
+## D022 — Ambiente do M1: av fixo, DLLs do torch e caches em D:
+
+- Data: 2026-11-14
+- Decisão: fixar `av==15.1.0`, adicionar a pasta `torch/lib` ao `PATH` e chamar
+  `os.add_dll_directory` antes de carregar o faster-whisper, e manter todos os
+  caches de modelos/pip em `.cache/` no D:.
+- Motivo: `av 19.0.2` removeu `metadata_errors`, usado pelo faster-whisper
+  1.2.1; `av 14.4.0` não tem wheel cp312 para Windows e tentou compilar do
+  source. O CTranslate2 em CUDA não encontrava `cublas64_12.dll` sem a pasta
+  `torch/lib`. As duas falhas foram reproduzidas e corrigidas.
+- Instalação: `requirements.txt` com versões exatas, índice cu126 para
+  torch/torchvision e `--no-deps` porque `opencv-python-headless` substitui
+  `opencv-python`. O `pip check` pode acusar dependências opcionais; isso é
+  esperado e está documentado em `docs/limitacoes.md`.
+- Consequência: não atualizar `av`, `faster-whisper` ou `ctranslate2` sem
+  revalidar a transcrição em CUDA e CPU. Se o CUDA falhar, o código cai para CPU
+  em vez de interromper a análise.
+
 ## Pendências de decisão
 
 - Definir se o EffectCraft entra no piloto do M5/M6.

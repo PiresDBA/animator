@@ -118,7 +118,90 @@ pessoal/educacional, lotes curtos para TDR e uso do stick-film como motor.
 6. Golden set sintético de 3 clipes de 10 s autorizado.
 7. PC pode ser usado durante a geração.
 
-### Próximo marco
+### Próximo marco do M0
 
 M1 — Análise de vídeo: cenas, movimento, profundidade, máscaras, pose e fala,
 com schemas versionados e validação no golden set.
+
+## M1 — Análise de vídeo (concluído tecnicamente; aguardando aprovação)
+
+Data: 2026-11-14
+Status: **pipeline executado nos 3 clipes do golden set; 3 JSONs válidos e
+23 testes OK. Aguardando aprovação humana antes do M2.**
+
+### O que foi feito
+
+- `.venv` local com Python 3.12.9 e dependências fixadas em `requirements.txt`;
+  caches de modelos, pip, Hugging Face, Ultralytics, rembg, Whisper e Matplotlib
+  em `.cache/` no D:.
+- Golden set sintético de 3 clipes de 10 s, 1280x720, 30 fps, H.264 + AAC, com
+  hashes e expectativas em `tests/golden/manifest.json`.
+- Smoke dos modelos em `tests/modelos_smoke.py`: PySceneDetect, YOLOv8n-pose,
+  Depth Anything V2 Small, rembg/U2Net e faster-whisper small.
+- Pipeline modular em `pipeline/`: `video.py`, `cenas.py`, `movimento.py`,
+  `profundidade.py`, `mascaras.py`, `pose.py`, `fala.py`, `medidas.py`,
+  `cache.py`, `validar.py` e o CLI `analisar.py`.
+- Schema versionado `pipeline/schemas/analise_v1.json` (Draft 2020-12,
+  `versao: 1`), validado com `jsonschema` e `FormatChecker`.
+- Execução real nos 3 clipes, com JSONs e prévias em `docs/evidencias/m1/`.
+- Correções: etapas desativadas não marcam `status: parcial`; campos opcionais
+  de fala (`avg_logprob`, `no_speech_prob`, `prob_idioma`) aceitam `None`;
+  `av==15.1.0` e DLLs do torch resolvidas para o CTranslate2 em CUDA.
+- Decisões D021 (Craft Voice/Piper) e D022 (ambiente do M1) registradas em
+  `docs/decisoes.md`.
+
+### Evidências
+
+| Comando | Resultado |
+|---|---|
+| `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` | 23 testes, todos OK, 0,519 s |
+| `.\.venv\Scripts\python.exe -m pipeline.analisar --video tests\golden\clipe_01_estatico.mp4 --saida docs\evidencias\m1\clipe_01_estatico.json --previa-dir docs\evidencias\m1\previa_clipe_01` | `OK`, 1 cena, pose 0, fala true, 36,30 s |
+| idem para `clipe_02_acao.mp4` | `OK`, 3 cenas, pose 23, fala false, 51,77 s |
+| idem para `clipe_03_texto.mp4` | `OK`, 1 cena, pose 0, fala true, 52,01 s |
+| `.\.venv\Scripts\python.exe -m pip install --dry-run --no-deps -r requirements.txt` | todas as versões fixadas já satisfeitas |
+| `tests/modelos_smoke.py` | 5 modelos executaram em CUDA/CPU conforme o caso |
+| `Get-FileHash` dos 4 pesos | hashes SHA256 registrados em `docs/licencas.md` |
+
+Resultados por clipe:
+
+| Clipe | Cenas | Pose | Fala | Tempo total | VRAM pico | Temp. máx. | Util. máx. |
+|---|---|---|---|---|---|---|---|
+| `clipe_01_estatico` | 1 (0–10 s) | 0 | true (2 segmentos) | 36,30 s | 1.018 MB | 67 °C | 80% |
+| `clipe_02_acao` | 3 (0–3, 3–6, 6–10 s) | 23 detecções | false (0 segmentos) | 51,77 s | 1.502 MB | 73 °C | 100% |
+| `clipe_03_texto` | 1 (0–10 s) | 0 | true (2 segmentos) | 52,01 s | 1.502 MB | 73 °C | 100% |
+
+Tempos por etapa no clipe 2: cenas 1,33 s; movimento 0,61 s; profundidade
+13,41 s; máscaras 26,90 s; pose 1,70 s; fala 3,70 s. No primeiro uso do rembg, a
+importação/criação de sessão adicionou ~58 s ao total (primeira execução do
+clipe 1: 102,22 s); execuções seguintes ficaram em 36–52 s por clipe.
+
+### Modelos baixados
+
+| Modelo | Arquivo | Bytes | SHA256 |
+|---|---|---|---|
+| YOLOv8n-pose | `.cache/modelos/yolov8n-pose.pt` | 6.832.633 | `c6fa93dd1ee4a2c18c900a45c1d864a1c6f7aba75d84f91648a30b7fb641d212` |
+| U2Net (rembg) | `.cache/rembg/models/u2net/u2net.onnx` | 175.997.641 | `8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491` |
+| Depth Anything V2 Small | `.cache/huggingface/hub/models--depth-anything--Depth-Anything-V2-Small-hf/blobs/3152...` (`model.safetensors`) | 99.173.660 | `3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70` |
+| faster-whisper small | `.cache/whisper/models--Systran--faster-whisper-small/blobs/3e30...` (`model.bin`) | 483.546.902 | `3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671` |
+
+### Limitações medidas
+
+- O YOLOv8n-pose detecta bem as duas figuras no clipe 2 até 5,5 s, mas retorna
+  0 detecções entre 6,0 e 9,0 s e 1 em 9,5 s (confiança 0,429). O resultado é
+  registrado como ausência; o pipeline não inventa pontos.
+- O Whisper small comete erros no TTS sintético em português (“Este atil símbolo
+  de Copyrighto 3º Clip.”). O texto bruto fica no JSON para auditoria; a prévia
+  final deve permitir correção humana.
+- A primeira execução do rembg tem custo alto de importação/sessão; o cache de
+  modelos e o uso repetido do mesmo processo reduzem o tempo.
+- O aviso de `hf_xet` continua porque o pacote não está no `.venv`; downloads
+  continuam funcionando. Não instalar no Docling/global.
+- `pip check` acusa dependências opcionais não instaladas (`opencv-python`,
+  `nvidia-ml-py`, `polars`, `ultralytics-platform`) porque a instalação usa
+  `--no-deps` e `opencv-python-headless`; o pipeline funciona assim.
+- As medições de GPU são curtas (36–52 s), não um teste térmico sustentado.
+
+### Próximo marco
+
+M2 — primeira prévia vertical com o motor de bonecos, aprovação humana e
+renderização de um trecho curto; nenhum vídeo completo antes do portão do M3.
