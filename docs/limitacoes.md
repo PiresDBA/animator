@@ -40,7 +40,9 @@ são rotuladas como tal.
 - Remotion: não instalado dentro do projeto. Há projetos existentes com
   Remotion 4.0.542 e 4.0.484; será criado um projeto local com versão fixada.
 - VideoFactoryAI: `D:\PROJETOS-IA\Fabrica-de-videos\VideoFactoryAI`.
-- yt-dlp, Playwright e Chrome do motor ainda não foram confirmados/instalados.
+- yt-dlp ainda não foi instalado. Playwright-core e Chrome existem em
+  `C:\Users\Pires\StickFilms\.tools` e `C:\Program Files\Google\Chrome\Application\chrome.exe`;
+  o motor ainda não foi executado.
 
 ## Modelos
 

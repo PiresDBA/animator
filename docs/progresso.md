@@ -98,7 +98,9 @@ pessoal/educacional, lotes curtos para TDR e uso do stick-film como motor.
 - Há cinco projetos Remotion candidatos; ainda não há projeto Remotion local.
 - Faltam modelos de segmentação, profundidade, pose, fala e interpolação.
 - DreamShaper 8 e YOLOv8n-pose têm pendências de licença.
-- Playwright/Chrome e yt-dlp ainda não foram confirmados.
+- yt-dlp ainda não foi instalado. Playwright-core e Chrome foram localizados
+  (`C:\Users\Pires\StickFilms\.tools` e `C:\Program Files\Google\Chrome\Application\chrome.exe`),
+  mas o motor ainda não foi executado.
 - C: tem pouco espaço livre; artefatos devem ficar em D:.
 - Nenhuma geração de vídeo foi executada; o M1 ainda não começou.
 
