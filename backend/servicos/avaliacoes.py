@@ -21,6 +21,13 @@ CHAVES_NOTAS = (
     "clareza_historia",
 )
 
+ALIAS_CRITERIOS = {
+    "atencao_infantil": "adequacao_infantil",
+    "clareza_cenas": "clareza_historia",
+    "estilo_consistente": "identidade_visual",
+    "ausencia_artefatos": "fluidez",
+}
+
 
 class ErroAvaliacao(Exception):
     """Dados de avaliacao invalidos."""
@@ -65,11 +72,18 @@ def validar(dados: dict[str, Any]) -> dict[str, Any]:
         raise ErroAvaliacao(
             "Informe as notas de 1 a 5 para: " + ", ".join(CHAVES_NOTAS) + "."
         )
+
+    # Mapeia aliases para as chaves canonicas
+    notas_normalizadas: dict[str, Any] = {}
+    for chave, valor in notas.items():
+        chave_canonica = ALIAS_CRITERIOS.get(chave, chave)
+        notas_normalizadas[chave_canonica] = valor
+
     notas_limpas: dict[str, int] = {}
     for chave in CHAVES_NOTAS:
-        if chave not in notas:
+        if chave not in notas_normalizadas:
             raise ErroAvaliacao(f"A nota '{chave}' e obrigatoria (valores de 1 a 5).")
-        valor = notas[chave]
+        valor = notas_normalizadas[chave]
         if isinstance(valor, bool) or not isinstance(valor, (int, float)):
             raise ErroAvaliacao(f"A nota '{chave}' deve ser um numero inteiro de 1 a 5.")
         if float(valor) != int(valor):
@@ -78,7 +92,7 @@ def validar(dados: dict[str, Any]) -> dict[str, Any]:
         if inteiro < 1 or inteiro > 5:
             raise ErroAvaliacao(f"A nota '{chave}' deve estar entre 1 e 5.")
         notas_limpas[chave] = inteiro
-    for chave in notas:
+    for chave in notas_normalizadas:
         if chave not in CHAVES_NOTAS:
             raise ErroAvaliacao(
                 f"Nota desconhecida '{chave}'. Use apenas: " + ", ".join(CHAVES_NOTAS) + "."
@@ -94,6 +108,17 @@ def salvar(projeto_id: str, dados: dict[str, Any]) -> dict[str, Any]:
 
     notas = validar(dados)
     avaliacoes = ler(projeto_id)
+
+    raw_params = dados.get("params") if isinstance(dados.get("params"), dict) else {}
+    params = {
+        "seed": raw_params.get("seed", 7),
+        "resolucao": raw_params.get("resolucao", "480p"),
+        "modo": raw_params.get("modo", "rapido"),
+        "versao_preset": raw_params.get("versao_preset", 1),
+        "trecho_inicio": raw_params.get("trecho_inicio", 0.0),
+        "trecho_fim": raw_params.get("trecho_fim", 5.0),
+    }
+
     registro: dict[str, Any] = {
         "id": _proximo_id(avaliacoes),
         "previa_id": dados.get("previa_id") or dados.get("preview_id"),
@@ -102,7 +127,7 @@ def salvar(projeto_id: str, dados: dict[str, Any]) -> dict[str, Any]:
         "decisao": str(dados.get("decisao") or "").strip().lower(),
         "notas": notas,
         "comentario": dados.get("comentario"),
-        "params": dados.get("params") if isinstance(dados.get("params"), dict) else {},
+        "params": params,
         "observacao_responsavel": dados.get("observacao_responsavel"),
     }
 

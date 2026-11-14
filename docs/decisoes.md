@@ -262,3 +262,22 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
 - Manter o DreamShaper 8 fora até a licença dos pesos ser esclarecida.
 - Se houver distribuição do projeto, substituir o YOLOv8n-pose por alternativa
   permissiva e revisar as obrigações GPL do FFmpeg e AGPL do YOLO.
+
+## D028 — Portão M3: liberação condicional do vídeo completo
+
+- Data: 2026-11-14
+- Decisão: o endpoint `POST /api/projetos/{id}/completo` verifica `avaliacoes.tem_aprovacao()` e, se houver pelo menos uma avaliação com `decisao: "aprovar"` para o projeto, enfileira um job do tipo `"completo"` que chama `pipeline.completo.executar()`. Sem aprovação, retorna 403. O `pipeline.completo` faz a mesma verificação lendo `avaliacoes.json` diretamente como dupla barreira de segurança.
+- Motivo: atender ao contrato M3 (seção 4, Portão e Segurança) — nenhuma Fase B sem aprovação humana formal. A dupla barreira (backend + pipeline) garante que mesmo execução via CLI respeita o portão.
+- Alternativa descartada: liberar automaticamente com base em notas médias ≥ 3 (violaria a prioridade #2 de aprovação humana explícita).
+
+## D029 — Recuperação de jobs após reinício do backend
+
+- Data: 2026-11-14
+- Decisão: ao chamar `fila.iniciar()`, o método `_recuperar()` marca todos os jobs em status `"rodando"` como `"erro"` com a mensagem "Job interrompido: o backend foi reiniciado." Isso garante que o usuário saiba que um job foi interrompido e pode reenfileirá-lo.
+- Motivo: jobs que ficaram em `"rodando"` quando o processo caiu nunca vão terminar sozinhos. Marcá-los como erro é a opção mais segura e transparente.
+
+## D030 — Teste de flash sintético com vídeo OpenCV gerado
+
+- Data: 2026-11-14
+- Decisão: o teste `test_flash_sintetico_bloqueado` gera um vídeo com 10 alternâncias preto/branco por segundo (320×240, 30 fps, 2 s) via `cv2.VideoWriter` e verifica que `seguranca.medir_flashes()` o bloqueia (`ok: False`). O teste `test_flash_seguro_passa` gera um vídeo com cor constante (cinza 128) e confirma que passa.
+- Motivo: testar a detecção de flashes sem depender de vídeos externos, com total reprodutibilidade.

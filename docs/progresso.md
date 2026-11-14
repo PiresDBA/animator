@@ -279,3 +279,65 @@ Registradas em `docs/decisoes.md`:
 1. Aprovação da nova prévia de 5 s gerada para bonecos de palito (`projetos/teste-backend/saidas/previa_bonecos_004.mp4`).
 2. Validação da interface gráfica web (acessível em `http://127.0.0.1:8765` ao executar `iniciar.bat` ou pelo navegador já aberto).
 3. Autorização para prosseguir para o **M3 — Portão e Segurança** (regras de portão, testes de flashes sintéticos, decisões em avaliacoes.json e retomada de estado).
+
+## M3 — Portão e Segurança (concluído)
+
+Data: 2026-11-14
+Status: **concluído; aguardando aprovação do usuário.**
+
+### O que foi feito
+
+- **Portão de aprovação humana**: o endpoint `POST /api/projetos/{id}/completo` agora verifica `avaliacoes.tem_aprovacao()`. Sem aprovação → 403. Com aprovação → 202 (job enfileirado na fila SQLite).
+- **Job handler `completo`**: registrado em `backend/app.py`, importa `pipeline.completo.executar()` e gera o vídeo completo da Fase B com receipt.json.
+- **Dupla barreira**: tanto o endpoint quanto o `pipeline.completo` verificam independentemente a existência de aprovação em `avaliacoes.json`.
+- **Teste de flash sintético**: vídeo com 10 flashes/s gerado via OpenCV → `seguranca.medir_flashes()` retorna `ok: False` (bloqueado). Vídeo sem flashes (cor constante) → `ok: True`.
+- **Teste de volume**: prévia existente verificada com `medir_volume()` e `checar()` → veredito verde.
+- **Teste de retomada da fila**: jobs persistem em SQLite entre instâncias. Jobs em `"rodando"` são recuperados como `"erro"` ao reiniciar (`_recuperar()` no `iniciar()`).
+- **Validação de avaliacoes.json**: schema verificado (versão, lista, campos obrigatórios, notas de 1 a 5 em 5 critérios, decisão no enum).
+- **Aliases de critérios**: `atencao_infantil → adequacao_infantil`, `clareza_cenas → clareza_historia`, etc., validados.
+- **Filtro de conteúdo léxico**: termos de terror, violência e conteúdo impróprio testados em 4 cenários.
+- **Suíte de testes M3**: 22 novos testes em `tests/test_m3.py`.
+- **Testes M2 atualizados**: assertions de marco atualizadas para aceitar M2+ sem quebrar.
+- **Total: 51 testes passando** em 2,147 s.
+- Decisões D028, D029 e D030 registradas em `docs/decisoes.md`.
+
+### Evidências
+
+| Comando | Resultado |
+|---|---|
+| `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` | 51 testes, todos OK, 2,147 s |
+| `POST /api/projetos/teste-backend/completo` com aprovação | Retorna `{"job_id": "job_...", "aprovacao": "av_001"}` (HTTP 202) |
+| `POST /api/projetos/_test_m3_sem_avaliacao/completo` sem avaliação | Retorna HTTP 403 `{"erro": "sem_aprovacao"}` |
+| Flash sintético (10/s) → `medir_flashes()` | `ok: False`, `max_flashes_1s: 14` |
+| Vídeo sem flash → `medir_flashes()` | `ok: True`, `max_flashes_1s: 0` |
+| Prévia existente → `checar()` | `veredito: "verde"` |
+| Fila SQLite: job persiste entre instâncias | `status: "na_fila"` recuperado |
+| Fila SQLite: job "rodando" recuperado | `status: "erro"`, mensagem "reiniciado" |
+
+Arquivos criados/modificados:
+- `pipeline/completo.py` (novo: gerador de vídeo completo Fase B)
+- `backend/app.py` (portão M3, handler completo, PedidoCompleto)
+- `backend/servicos/avaliacoes.py` (aliases, params estruturados)
+- `tests/test_m3.py` (novo: 22 testes M3)
+- `tests/test_m2.py` (atualizado para M3+)
+- `docs/decisoes.md` (D028, D029, D030)
+
+### Medidas reais
+
+- Testes automatizados: 51 testes em 2,147 s (CPU, sem GPU).
+- Flash sintético (320×240, 30 fps, 2 s, 10 alternâncias/s): gerado e medido em < 0,2 s.
+- Retomada da fila: < 0,05 s para criar/recuperar SQLite.
+
+### Critérios de aceite M3 (seção 4 do Prompt Mestre)
+
+| Critério | Status |
+|---|---|
+| Nenhuma Fase B sem aprovação | ✅ 403 sem aprovação, 202 com |
+| Testes de flashes | ✅ Flash sintético detectado e bloqueado |
+| Decisões em avaliacoes.json | ✅ Schema validado com 5 critérios |
+| Retomada após fechar o app | ✅ SQLite persiste, jobs "rodando" recuperados |
+
+### O que precisa da aprovação do usuário antes do próximo marco
+
+1. Confirmação de que o M3 atende aos critérios de aceite.
+2. Autorização para prosseguir para o **M4 — Estilos Procedurais** (LEGO, anime, 3D cartoon e 3D PBR).

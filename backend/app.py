@@ -1,8 +1,8 @@
-"""Backend do Estucio de Animacao (M2).
+"""Backend do Estucio de Animacao (M3).
 
-FastAPI na porta 8765. Implementa a secao 5 do contrato M2:
+FastAPI na porta 8765. Implementa a secao 5 do contrato M2/M3:
 ``/api/estado``, ``/api/projetos`` (CRUD + analisar + previa + previas),
-``/api/avaliacoes``, ``/api/projetos/{id}/completo`` (bloqueado no M2),
+``/api/avaliacoes``, ``/api/projetos/{id}/completo`` (portao M3: liberado com aprovacao),
 ``/api/fila`` (com cancelamento) e o WebSocket ``/api/eventos``.
 
 Para subir:
@@ -165,9 +165,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Estudio de Animacao - M2",
-    version="1.0.0",
-    description="Backend local do M2 (bonecos de palito).",
+    title="Estudio de Animacao - M3",
+    version="1.1.0",
+    description="Backend local do M3 (portao de seguranca e video completo).",
     lifespan=lifespan,
 )
 
@@ -202,7 +202,7 @@ async def erro_de_validacao(request, exc: RequestValidationError) -> JSONRespons
 async def estado() -> dict[str, Any]:
     """Estado geral do backend (contrato M2, secao 5)."""
     return {
-        "marco": "M2",
+        "marco": "M3",
         "backend": "ok",
         "fila": fila.resumo(),
         "hardware": hardware.resumo(),
@@ -375,9 +375,54 @@ async def registrar_avaliacao_no_projeto(projeto_id: str, pedido: PedidoAvaliaca
 
 
 # ------------------------------------------------------------------ completo
-@app.post("/api/projetos/{projeto_id}/completo")
-async def gerar_completo(projeto_id: str):
-    """Portao do M2: nao ha geracao de video completo neste marco."""
+class PedidoCompleto(BaseModel):
+    estilo: str = "bonecos"
+    resolucao: str = "480p"
+    formato: str = "16:9"
+    seed: int = 7
+
+
+def _job_completo(job: dict, ctx: fila_mod.Contexto, payload: dict) -> None:
+    """Handler do job 'completo': gera o video da Fase B via pipeline.completo."""
+    projeto_id = job["projeto"] or ""
+    ctx.progresso(0.05, "Validando portao de aprovacao.")
+    ctx.log("info", f"Geracao completa do projeto {projeto_id}.")
+
+    # Importa aqui para evitar circular import no top-level do modulo
+    try:
+        from pipeline import completo as completo_mod
+    except ImportError:
+        import importlib
+        completo_mod = importlib.import_module("pipeline.completo")
+
+    estilo = payload.get("estilo") or "bonecos"
+    resolucao = payload.get("resolucao") or "480p"
+    formato = payload.get("formato") or "16:9"
+    seed = int(payload.get("seed") or 7)
+
+    ctx.progresso(0.10, "Iniciando renderizacao do video completo.")
+    receipt_path = completo_mod.executar(
+        projeto_id=projeto_id,
+        estilo=estilo,
+        resolucao=resolucao,
+        formato=formato,
+        seed=seed,
+    )
+    ctx.progresso(0.95, "Video completo gerado.")
+    difusor.publicar(
+        {"tipo": "completo", "projeto": projeto_id, "receipt": str(receipt_path)}
+    )
+    ctx.mensagem = f"Video completo gerado: {receipt_path.name}"
+
+
+fila.registrar_handler("completo", _job_completo)
+
+
+@app.post("/api/projetos/{projeto_id}/completo", status_code=202)
+async def gerar_completo(projeto_id: str, pedido: PedidoCompleto | None = None):
+    """Portao M3: enfileira geracao do video completo se houver aprovacao humana."""
+    if pedido is None:
+        pedido = PedidoCompleto()
     meta = projetos.meta(projeto_id)
     if meta is None:
         return erro_resposta(
@@ -391,14 +436,19 @@ async def gerar_completo(projeto_id: str):
             "Nenhum estilo aprovado neste projeto. Avalie uma previa e aprove "
             "o estilo para liberar a geracao do video completo.",
         )
-    return erro_resposta(
-        403,
-        "video_completo_bloqueado_no_m2",
-        "O projeto tem uma previa aprovada ("
-        f"{aprovacao.get('id')}), mas o M2 nao produz video completo: a "
-        "geracao completa fica disponivel apenas a partir de um marco "
-        "posterior. Ate la, use as previas para revisar o resultado.",
+    # Portao liberado: enfileirar job completo
+    job = fila.enfileirar(
+        "completo",
+        projeto_id,
+        {
+            "estilo": pedido.estilo,
+            "resolucao": pedido.resolucao,
+            "formato": pedido.formato,
+            "seed": pedido.seed,
+        },
+        f"Geracao completa '{pedido.estilo}' na fila.",
     )
+    return {"job_id": job["id"], "aprovacao": aprovacao.get("id")}
 
 
 # ---------------------------------------------------------------------- fila
