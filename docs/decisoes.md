@@ -95,7 +95,8 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
   Ele é um engine Node.js/Playwright próprio (não usa o par
   `three`+`remotion` descrito na assinatura genérica). O adaptador
   `pipeline/render_stick.py` lerá o motor e passará poses sem reescrevê-lo.
-- Pendência: confirmar Playwright/Chrome no M2.
+- Pendência: executar o motor no M2. Playwright-core e Chrome foram localizados
+  em `C:\Users\Pires\StickFilms\.tools` e `C:\Program Files\Google\Chrome\Application\chrome.exe`.
 
 ## D012 — Stack GPU validada no M0
 
@@ -121,10 +122,68 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
   por estilo.
 - Orçamento: sem limite prático declarado; PC disponível durante a geração.
 
+## D015 — M0 aprovado e descoberta persistida
+
+- Data: 2026-11-14
+- Decisão: o usuário aprovou a tabela de descoberta. O resultado foi salvo em
+  `descoberta/resultado_varredura.json` com `confirmado_pelo_usuario=true`, e os
+  caminhos confirmados foram gravados em `config.json`.
+- Evidência: 17.172 pastas, 37 erros de acesso, 25,91 s, concluída no prazo.
+- Caminhos principais: ComfyUI, EffectCraft, FFmpeg local, motor stick-film,
+  Remotion local (a criar) e VideoFactoryAI.
+
+## D016 — Motor de bonecos: fonte do projeto
+
+- Data: 2026-11-14
+- Decisão: usar `D:\PROJETOS-IA\stick-film\stick-film`.
+- Motivo: é a única cópia com `engine/sprite.js` e `engine/diag.mjs`; o README
+  do projeto é mais completo que o das cópias instaladas em `.claude`, `.codex`
+  e `.opencode`.
+- Consequência: o adaptador `pipeline/render_stick.py` lerá esse motor sem
+  reescrevê-lo. As cópias instaladas ficam apenas como referência.
+
+## D017 — Remotion limpo, versão fixa 4.0.542
+
+- Data: 2026-11-14
+- Decisão: criar um projeto Remotion mínimo em `estudio/remotion` com
+  `remotion` e `@remotion/cli` fixados em 4.0.542.
+- Motivo: evita herdar código, dependências e licenças de terceiros dos cinco
+  projetos candidatos. O OpenMontage 4.0.484 fica apenas como referência.
+- Consequência: o projeto local precisa ser criado e testado no M2.
+
+## D018 — Licenças: DreamShaper fora; YOLO aceito com restrição
+
+- Data: 2026-11-14
+- Decisão: o DreamShaper 8 permanece bloqueado até a licença dos pesos ser
+  esclarecida. O YOLOv8n-pose (AGPL-3.0) é aceito somente para uso
+  pessoal/educacional, sem distribuir o modelo nem o código derivado.
+- Alternativa: se houver distribuição, trocar por um detector de pose
+  permissivo e revalidar a qualidade.
+- Consequência: o inventário e os avisos do projeto devem marcar essa restrição.
+
+## D019 — Golden set sintético
+
+- Data: 2026-11-14
+- Decisão: gerar localmente 3 clipes de 10 s (personagem estático, ação com duas
+  figuras e cartela de texto), sem material de terceiros.
+- Motivo: elimina risco de direitos e permite testar o pipeline de forma
+  reproduzível.
+- Limitação: clipes sintéticos não validam a qualidade de pose e fala em vídeos
+  reais; o M1 deve reportar "sem detecção" quando for o caso, sem inventar
+  resultados.
+
+## D020 — Venv e downloads do M1 autorizados
+
+- Data: 2026-11-14
+- Decisão: criar `.venv` dentro do projeto e instalar dependências e modelos
+  somente ali, sem instalação global. O cache do pip fica em D: ou é desativado
+  para não pressionar C:.
+- Regra: registrar licença, versão, tamanho e hash de cada modelo baixado antes
+  de usá-lo no pipeline.
+
 ## Pendências de decisão
 
-- Confirmar a tabela de descoberta antes de gravar caminhos em `config.json`.
-- Decidir onde instalar o Remotion e qual versão fixar.
-- Confirmar licença específica dos pesos do DreamShaper 8 antes de usá-lo.
 - Definir se o EffectCraft entra no piloto do M5/M6.
-- Confirmar se o YOLOv8n-pose (AGPL-3.0) é aceitável para o uso pretendido.
+- Manter o DreamShaper 8 fora até a licença dos pesos ser esclarecida.
+- Se houver distribuição do projeto, substituir o YOLOv8n-pose por alternativa
+  permissiva e revisar as obrigações GPL do FFmpeg e AGPL do YOLO.

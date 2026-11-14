@@ -118,5 +118,24 @@ class TestVarredura(BaseTemp):
         self.assertIn("$recycle.bin", varredura.EXCLUIR_DIRS)
 
 
+class TestSalvarResultado(BaseTemp):
+    def test_salva_nao_confirmado_por_padrao(self) -> None:
+        destino = self.base / "resultado.json"
+        varredura.salvar_resultado({"resultados": [], "estatisticas": {}}, destino)
+        dados = json.loads(destino.read_text(encoding="utf-8"))
+        self.assertFalse(dados["confirmado_pelo_usuario"])
+        self.assertNotIn("confirmado_em", dados)
+        self.assertEqual(dados["versao"], 1)
+
+    def test_salva_confirmado_com_timestamp(self) -> None:
+        destino = self.base / "resultado.json"
+        varredura.salvar_resultado(
+            {"resultados": [], "estatisticas": {}}, destino, confirmado=True
+        )
+        dados = json.loads(destino.read_text(encoding="utf-8"))
+        self.assertTrue(dados["confirmado_pelo_usuario"])
+        self.assertIn("confirmado_em", dados)
+
+
 if __name__ == "__main__":
     unittest.main()

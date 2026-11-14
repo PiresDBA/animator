@@ -1,0 +1,174 @@
+{
+  "versao": 1,
+  "gerado_em": "2026-11-14T13:00:02+00:00",
+  "confirmado_pelo_usuario": true,
+  "resultados": [
+    {
+      "tipo": "comfyui",
+      "caminho": "D:\\Comfy\\ComfyUI",
+      "evidencia": "main.py + models/",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "motor_bonecos",
+      "caminho": "D:\\PROJETOS-IA\\stick-film\\stick-film",
+      "evidencia": "engine/render.mjs + engine/character.js",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "effectcraft",
+      "caminho": "D:\\CRAFT\\EffectCraft",
+      "evidencia": "effectcraft.exe / effectcraft-cli.exe",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "videofactoryai",
+      "caminho": "D:\\PROJETOS-IA\\Fabrica-de-videos",
+      "evidencia": "nome da pasta + projeto local",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "videofactoryai",
+      "caminho": "D:\\PROJETOS-IA\\Fabrica-de-videos\\VideoFactoryAI",
+      "evidencia": "nome da pasta + projeto local",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "C:\\Users\\Pires\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.1-full_build\\bin",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "D:\\PROJETOS-IA\\animacao\\estudio\\tools\\ffmpeg",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "pasta_comum"
+    },
+    {
+      "tipo": "remotion",
+      "caminho": "D:\\PROJETOS-IA\\The Lamp That Kept Burning\\_edit",
+      "evidencia": "package.json: remotion + src/Root.tsx",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "remotion",
+      "caminho": "D:\\PROJETOS-IA\\nov09-00_53\\TIMELINE\\_marketing",
+      "evidencia": "package.json: remotion + src/Root.tsx",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "remotion",
+      "caminho": "D:\\PROJETOS-IA\\nov09-00_53\\TIMELINE\\_edit",
+      "evidencia": "package.json: remotion + src/Root.tsx",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "motor_bonecos",
+      "caminho": "D:\\PROJETOS-IA\\nov09-00_53\\TIMELINE\\skills\\stick-film",
+      "evidencia": "engine/render.mjs + engine/character.js",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "D:\\PROJETOS-IA\\Fabrica-de-videos\\ffmpeg\\bin",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "D:\\CRAFT\\VoiceCraft\\ffmpeg\\bin",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "remotion",
+      "caminho": "D:\\CRAFT\\OpenMontage\\remotion-composer",
+      "evidencia": "package.json: remotion + src/Root.tsx",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "C:\\Users\\Pires\\StickFilms\\.tools\\bin",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "motor_bonecos",
+      "caminho": "C:\\Users\\Pires\\.opencode\\skills\\stick-film\\stick-film",
+      "evidencia": "engine/render.mjs + engine/character.js",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "motor_bonecos",
+      "caminho": "C:\\Users\\Pires\\.codex\\skills\\stick-film\\stick-film",
+      "evidencia": "engine/render.mjs + engine/character.js",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "motor_bonecos",
+      "caminho": "C:\\Users\\Pires\\.claude\\skills\\stick-film\\stick-film",
+      "evidencia": "engine/render.mjs + engine/character.js",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "remotion",
+      "caminho": "C:\\Users\\Pires\\.claude\\skills\\documentary-timeline-editor\\assets\\templates",
+      "evidencia": "package.json: remotion + src/Root.tsx",
+      "origem": "varredura"
+    },
+    {
+      "tipo": "ffmpeg",
+      "caminho": "C:\\Program Files\\Krita (x64)\\bin",
+      "evidencia": "ffmpeg.exe + ffprobe.exe",
+      "origem": "varredura"
+    }
+  ],
+  "estatisticas": {
+    "pastas": 17172,
+    "erros": 37,
+    "duracao_s": 25.77,
+    "concluida": true,
+    "raizes": [
+      {
+        "caminho": "D:\\PROJETOS-IA",
+        "profundidade": 5
+      },
+      {
+        "caminho": "D:\\CRAFT",
+        "profundidade": 4
+      },
+      {
+        "caminho": "D:\\",
+        "profundidade": 5
+      },
+      {
+        "caminho": "C:\\Users\\Pires",
+        "profundidade": 5
+      },
+      {
+        "caminho": "C:\\Program Files",
+        "profundidade": 4
+      },
+      {
+        "caminho": "C:\\Program Files (x86)",
+        "profundidade": 4
+      },
+      {
+        "caminho": "C:\\ProgramData",
+        "profundidade": 3
+      },
+      {
+        "caminho": "C:\\Users\\Pires\\AppData\\Local\\Programs",
+        "profundidade": 5
+      },
+      {
+        "caminho": "C:\\Users\\Pires\\AppData\\Local\\Microsoft\\WinGet\\Packages",
+        "profundidade": 5
+      }
+    ],
+    "duracao_total_s": 25.91,
+    "limite_s": 180.0
+  },
+  "confirmado_em": "2026-11-14T13:00:02+00:00"
+}

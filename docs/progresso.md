@@ -1,9 +1,9 @@
 # Progresso
 
-## M0 — Ambiente (concluído, aguardando aprovação)
+## M0 — Ambiente (concluído e aprovado)
 
 Data: 2026-11-14
-Status: **concluído tecnicamente; aprovação humana pendente para iniciar o M1.**
+Status: **concluído e aprovado pelo usuário; M1 iniciado.**
 
 ### O que foi feito
 
@@ -42,7 +42,7 @@ Arquivos gerados:
 Capturas de tela: não aplicáveis ao M0, que ainda não tem interface. As
 evidências são JSONs e a saída dos comandos acima.
 
-### Tabela de descoberta (aguardando confirmação antes de salvar)
+### Tabela de descoberta (confirmada e salva)
 
 | Tipo | Origem | Caminho | Evidência |
 |---|---|---|---|
@@ -67,9 +67,10 @@ evidências são JSONs e a saída dos comandos acima.
 | videofactoryai | pasta_comum | `D:\PROJETOS-IA\Fabrica-de-videos` | pasta do projeto |
 | videofactoryai | pasta_comum | `D:\PROJETOS-IA\Fabrica-de-videos\VideoFactoryAI` | pasta do projeto |
 
-**Importante:** a tabela acima ainda não foi gravada em
-`descoberta/resultado_varredura.json` nem em `config.json`. Isso só acontece
-depois da confirmação do usuário, conforme a seção 3.3.
+**Importante:** a tabela foi confirmada pelo usuário em 2026-11-14 e gravada em
+`descoberta/resultado_varredura.json` com `confirmado_pelo_usuario=true`
+(17.172 pastas, 37 erros de acesso, 25,91 s). Os caminhos principais foram
+gravados em `config.json`.
 
 ### Medidas reais
 
@@ -86,7 +87,7 @@ depois da confirmação do usuário, conforme a seção 3.3.
 
 ### Decisões tomadas
 
-Registradas em `docs/decisoes.md`: D001 a D014. Destacam-se: raiz em D:,
+Registradas em `docs/decisoes.md`: D001 a D020. Destacam-se: raiz em D:,
 ambientes Python isolados, FFmpeg local, descoberta somente leitura, entrada
 YouTube com direitos confirmados, nomes de exibição sem marcas, Remotion
 pessoal/educacional, lotes curtos para TDR e uso do stick-film como motor.
@@ -94,36 +95,28 @@ pessoal/educacional, lotes curtos para TDR e uso do stick-film como motor.
 ### Riscos e limitações conhecidas
 
 - O teste de GPU é curto; não mede carga térmica sustentada.
-- Há cinco cópias do motor de bonecos, com duas versões de `render.mjs`.
-- Há cinco projetos Remotion candidatos; ainda não há projeto Remotion local.
+- Há cinco cópias do motor de bonecos; foi escolhida a fonte do projeto
+  (`D:\PROJETOS-IA\stick-film\stick-film`), que tem `sprite.js` e `diag.mjs`.
+- Há cinco projetos Remotion candidatos; será criado um projeto limpo 4.0.542.
 - Faltam modelos de segmentação, profundidade, pose, fala e interpolação.
-- DreamShaper 8 e YOLOv8n-pose têm pendências de licença.
+- DreamShaper 8 está bloqueado; o YOLOv8n-pose (AGPL-3.0) foi aceito somente
+  para uso pessoal/educacional.
 - yt-dlp ainda não foi instalado. Playwright-core e Chrome foram localizados
   (`C:\Users\Pires\StickFilms\.tools` e `C:\Program Files\Google\Chrome\Application\chrome.exe`),
   mas o motor ainda não foi executado.
 - C: tem pouco espaço livre; artefatos devem ficar em D:.
 - Nenhuma geração de vídeo foi executada; o M1 ainda não começou.
 
-### O que precisa da aprovação do usuário
+### Aprovação do usuário (concluída em 2026-11-14)
 
-1. Confirmar a tabela de descoberta para gravar os caminhos em `config.json` e
-   `descoberta/resultado_varredura.json`.
-2. Escolher o motor de bonecos:
-   - **A)** `D:\PROJETOS-IA\stick-film\stick-film` (fonte do projeto, `render.mjs`
-     mais antigo);
-   - **B)** a cópia instalada idêntica em `.claude`/`.codex`/`.opencode`
-     (mesmo `render.mjs` 958691540FA4EFBD…, mais recente);
-   - **C)** outra cópia.
-3. Escolher a base do Remotion:
-   - **A)** criar um projeto limpo em `estudio/remotion` com Remotion 4.0.542;
-   - **B)** usar `D:\CRAFT\OpenMontage\remotion-composer` como referência;
-   - **C)** usar outro projeto.
-4. Confirmar que o DreamShaper 8 fica fora até a licença ser esclarecida e que
-   o YOLOv8n-pose (AGPL-3.0) é aceitável para uso pessoal/educacional.
-5. Autorizar a criação do venv do pipeline e os downloads de modelos do M1
-   somente depois de registrar as licenças.
-6. Indicar os 3 clipes do golden set (ou autorizar o uso de clipes sintéticos
-   de 10 s).
+1. Tabela de descoberta aprovada e salva.
+2. Motor de bonecos: fonte do projeto
+   `D:\PROJETOS-IA\stick-film\stick-film`.
+3. Remotion: projeto limpo local com versão fixa 4.0.542.
+4. DreamShaper 8 fica fora; YOLOv8n-pose aceito para uso pessoal/educacional.
+5. Venv local e downloads do M1 autorizados, com registro de licenças.
+6. Golden set sintético de 3 clipes de 10 s autorizado.
+7. PC pode ser usado durante a geração.
 
 ### Próximo marco
 

@@ -5,12 +5,14 @@ confirmados ou projeto da VideoFactoryAI) em versões animadas para crianças de
 7 a 10 anos, com prévia obrigatória e aprovação humana antes de qualquer vídeo
 completo.
 
-## Estado atual: M0
+## Estado atual: M0 aprovado; M1 em andamento
 
 - Estrutura do projeto criada.
-- Descoberta de hardware, programas e modelos implementada (somente leitura).
+- Descoberta de hardware, programas e modelos implementada (somente leitura) e
+  tabela confirmada pelo usuário.
 - Teste real de GPU implementado.
 - Licenças levantadas em `docs/licencas.md`.
+- M1: análise de vídeo com golden set sintético de 3 clipes de 10 s.
 - Nenhuma geração de vídeo foi executada ainda.
 - A interface gráfica entra a partir do M2; `iniciar.bat` ainda é um painel de
   diagnóstico, não o app final.
@@ -49,8 +51,8 @@ estudio/
 # Perfil de hardware (grava perfil_hardware.json)
 py -3.12 descoberta\hardware.py --salvar
 
-# Descoberta de programas (somente leitura; --salvar após confirmar a tabela)
-py -3.12 descoberta\programas.py --max-seconds 180
+# Descoberta de programas (somente leitura; salva após confirmar a tabela)
+py -3.12 descoberta\programas.py --max-seconds 180 --salvar --confirmado
 
 # Inventário de modelos do ComfyUI
 py -3.12 descoberta\modelos.py --comfyui "D:\Comfy\ComfyUI" --salvar
@@ -69,7 +71,8 @@ py -3.12 -m unittest discover -s tests -v
 - ComfyUI com PyTorch 2.6.0+cu126.
 - Disco D: com espaço; C: tem pouco espaço livre.
 
-## Próximo marco
+## Marco atual
 
 M1: análise de vídeo (cenas, movimento, profundidade, máscaras, pose e fala)
-com schema validado, usando o golden set de 3 clipes de 10 s.
+com schema validado, usando o golden set de 3 clipes de 10 s. O ambiente Python
+do pipeline fica em `.venv` dentro do projeto.

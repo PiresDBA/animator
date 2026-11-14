@@ -404,13 +404,15 @@ def formatar_tabela(resultados: list[dict]) -> str:
     return "\n".join(linhas)
 
 
-def salvar_resultado(dados: dict, destino: Path) -> None:
+def salvar_resultado(dados: dict, destino: Path, confirmado: bool = False) -> None:
     payload = {
         "versao": 1,
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "confirmado_pelo_usuario": False,
+        "confirmado_pelo_usuario": confirmado,
         **dados,
     }
+    if confirmado:
+        payload["confirmado_em"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

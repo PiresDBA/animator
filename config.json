@@ -34,15 +34,33 @@
     "somente_leitura": true,
     "limite_segundos": 180,
     "varredura_executada": true,
-    "resultados_confirmados": false
+    "resultados_confirmados": true,
+    "confirmado_em": "2026-11-14T13:00:02+00:00"
   },
-  "licenca_remotion": "pessoal_educacional",
+  "licencas": {
+    "remotion": "pessoal_educacional",
+    "dreamshaper_8": "bloqueado",
+    "yolov8n_pose": "agpl_3_aceito_pessoal_educacional"
+  },
+  "golden_set": {
+    "fonte": "sintetica",
+    "clipes": 3,
+    "duracao_s": 10,
+    "diretorio": "tests/golden"
+  },
   "direitos_youtube": "confirmacao_obrigatoria_por_video",
   "nuvem": false,
-  "caminhos": {},
+  "caminhos": {
+    "comfyui": "D:\\Comfy\\ComfyUI",
+    "effectcraft": "D:\\CRAFT\\EffectCraft",
+    "ffmpeg": "D:\\PROJETOS-IA\\animacao\\estudio\\tools\\ffmpeg",
+    "motor_bonecos": "D:\\PROJETOS-IA\\stick-film\\stick-film",
+    "remotion": "D:\\PROJETOS-IA\\animacao\\estudio\\remotion",
+    "videofactoryai": "D:\\PROJETOS-IA\\Fabrica-de-videos\\VideoFactoryAI"
+  },
   "agente": {
     "fase": "A",
-    "marco_atual": "M0",
+    "marco_atual": "M1",
     "aprovacao_fase_b": false
   }
 }

@@ -37,8 +37,15 @@ def main() -> int:
         help="nao varre o disco; usa config, PATH, registro e pastas comuns",
     )
     parser.add_argument("--salvar", action="store_true", help="grava descoberta/resultado_varredura.json")
+    parser.add_argument(
+        "--confirmado",
+        action="store_true",
+        help="marca o resultado como confirmado pelo usuario (exige --salvar)",
+    )
     parser.add_argument("--json", action="store_true", help="imprime JSON em vez de tabela")
     args = parser.parse_args()
+    if args.confirmado and not args.salvar:
+        parser.error("--confirmado exige --salvar")
 
     dados = varredura.descobrir_tudo(
         raiz_projeto=RAIZ,
@@ -58,8 +65,11 @@ def main() -> int:
         )
         if args.salvar:
             destino = DIR / "resultado_varredura.json"
-            varredura.salvar_resultado(dados, destino)
-            print(f"OK: {destino} (confirmado_pelo_usuario=false)")
+            varredura.salvar_resultado(dados, destino, confirmado=args.confirmado)
+            print(
+                f"OK: {destino} "
+                f"(confirmado_pelo_usuario={'true' if args.confirmado else 'false'})"
+            )
         else:
             print("NAO SALVO: revise a tabela e rode com --salvar apos confirmar.")
 
