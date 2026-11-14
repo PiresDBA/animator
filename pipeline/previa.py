@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from pipeline import cache, render_procedural, render_stick, roteador, seguranca, tracking
+from pipeline import cache, render_comfy, render_esqueleto, render_procedural, render_stick, roteador, seguranca, tracking
 
 RAIZ = cache.CONFIG["raiz"]
 
@@ -111,33 +111,11 @@ def executar(
     arquivo_miniatura = pasta_saidas / f"miniatura_{previa_id}.png"
     arquivo_audio = pasta_saidas / "audio_trecho.wav"
 
+    gerou_via_comfy = False
     if estilo == "bonecos":
-        # 4. Construcao do filme stick-film
-        cor_fundo = render_stick._cor_fundo(caminho_video, trecho_inicio, trecho_fim)
-        render_stick.construir_filme(
-            rastreio=rastreio,
-            pasta_filme=pasta_filme,
-            largura=largura,
-            altura=altura,
-            fps=30,
-            duracao=duracao_s,
-            seed=seed,
-            cor_fundo=cor_fundo,
-        )
-
-        # 5. Renderizacao dos quadros com o motor
-        numero_quadros = max(1, int(round(duracao_s * 30)))
-        render_stick.renderizar_quadros(
-            pasta_filme=pasta_filme,
-            numero_quadros=numero_quadros,
-            saida=pasta_frames,
-            workers=2,
-        )
-    else:
-        # Estilos procedurais (lego, anime, cartoon, 3d)
-        render_procedural.renderizar_estilo(
+        # Renderizacao de rotoscopia esqueletica real (movimento anatomico 100% fluido)
+        render_esqueleto.renderizar_rotoscopia_video(
             caminho_video=caminho_video,
-            estilo=estilo,
             pasta_saida=pasta_frames,
             inicio_s=trecho_inicio,
             duracao_s=duracao_s,
@@ -145,6 +123,32 @@ def executar(
             largura=largura,
             altura=altura,
         )
+    else:
+        # Tenta renderizacao de alta fidelidade via ComfyUI (AnimateDiff + DreamShaper 8)
+        if render_comfy.comfy_disponivel():
+            try:
+                gerou_via_comfy = render_comfy.renderizar_animacao_alta_qualidade(
+                    caminho_video=caminho_video,
+                    estilo=estilo,
+                    destino_mp4=arquivo_mp4,
+                    duracao_s=min(3.0, duracao_s),
+                    seed=seed,
+                )
+            except Exception:
+                gerou_via_comfy = False
+
+        if not gerou_via_comfy:
+            # Fallback procedural
+            render_procedural.renderizar_estilo(
+                caminho_video=caminho_video,
+                estilo=estilo,
+                pasta_saida=pasta_frames,
+                inicio_s=trecho_inicio,
+                duracao_s=duracao_s,
+                fps=30,
+                largura=largura,
+                altura=altura,
+            )
 
     # 6. Extracao de audio original e montagem da previa MP4
     render_stick.montar_audio(
@@ -154,15 +158,34 @@ def executar(
         duracao_s=duracao_s,
     )
 
-    render_stick.montar_previa(
-        pasta_quadros=pasta_frames,
-        audio=arquivo_audio if arquivo_audio.is_file() else None,
-        destino=arquivo_mp4,
-        fps=30,
-        duracao_s=duracao_s,
-        largura_saida=largura,
-        altura_saida=altura,
-    )
+    if not gerou_via_comfy:
+        render_stick.montar_previa(
+            pasta_quadros=pasta_frames,
+            audio=arquivo_audio if arquivo_audio.is_file() else None,
+            destino=arquivo_mp4,
+            fps=30,
+            duracao_s=duracao_s,
+            largura_saida=largura,
+            altura_saida=altura,
+        )
+    else:
+        # Adiciona o audio sincronizado ao video gerado pelo ComfyUI se necessario
+        if arquivo_audio.is_file():
+            arquivo_temp = arquivo_mp4.with_name(arquivo_mp4.stem + "_temp.mp4")
+            import subprocess
+            cmd = [
+                str(cache.CONFIG["ffmpeg"]), "-y", "-hide_banner", "-loglevel", "error",
+                "-i", str(arquivo_mp4),
+                "-i", str(arquivo_audio),
+                "-c:v", "copy", "-c:a", "aac", "-b:a", "160k",
+                "-shortest", str(arquivo_temp),
+            ]
+            try:
+                subprocess.run(cmd, check=True)
+                arquivo_temp.replace(arquivo_mp4)
+            except Exception:
+                if arquivo_temp.is_file():
+                    arquivo_temp.unlink(missing_ok=True)
 
     # 7. Extracao de miniatura
     render_stick.extrair_miniatura(
