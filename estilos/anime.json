@@ -4,7 +4,7 @@
   "nome_exibicao": "Traço anime",
   "descricao": "Contornos expressivos, cores chapadas e sombreamento em poucos tons.",
   "tecnica": "anime_contornos",
-  "status": "planejado",
+  "status": "ativo",
   "gpu_necessaria": false,
   "difusao": false,
   "paleta_max": 12,

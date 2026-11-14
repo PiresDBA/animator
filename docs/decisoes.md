@@ -281,3 +281,33 @@ Registro cronológico. Toda decisão técnica não óbvia entra aqui.
 - Data: 2026-11-14
 - Decisão: o teste `test_flash_sintetico_bloqueado` gera um vídeo com 10 alternâncias preto/branco por segundo (320×240, 30 fps, 2 s) via `cv2.VideoWriter` e verifica que `seguranca.medir_flashes()` o bloqueia (`ok: False`). O teste `test_flash_seguro_passa` gera um vídeo com cor constante (cinza 128) e confirma que passa.
 - Motivo: testar a detecção de flashes sem depender de vídeos externos, com total reprodutibilidade.
+
+## D031 — Mosaico LEGO procedural (CPU + k-means + pinos 3D)
+
+- Data: 2026-11-14
+- Decisão: implementar o estilo LEGO em `tecnicas/lego.py` reduzindo a imagem para 80 colunas, quantizando via k-means com ancoragem na paleta clássica de 16 cores LEGO e ampliando com interpolação nearest-neighbor, desenhando pinos circulares com brilho e sombra direcional.
+- Motivo: atende integralmente à Seção 7 do Prompt Mestre com 100% de processamento local em CPU e respeito estrito ao limite de paleta.
+
+## D032 — Traço Anime com XDoG e cel-shading bilateral
+
+- Data: 2026-11-14
+- Decisão: implementar `tecnicas/anime.py` usando XDoG (Extended Difference of Gaussians) com parâmetros $\sigma=0.6, \kappa=1.6, \gamma=0.97, \epsilon=-0.05$ seguido de filtro bilateral no espaço Lab e quantização em 10 cores com realce sutil de saturação.
+- Motivo: produzir traços nítidos contínuos e blocos planos de cor típicos de animação tradicional japonesa sem necessidade de redes de difusão.
+
+## D033 — Cartoon 3D estilizado com rampa toon e inverted hull
+
+- Data: 2026-11-14
+- Decisão: implementar `tecnicas/cartoon.py` estimando normais de superfície e aplicando sombreamento difuso quantizado em rampa de 4 patamares (0.35, 0.55, 0.80, 1.0) análogo ao MeshToonMaterial, com silhueta escura calculada por detecção de ângulo rasante de visão e descontinuidade de profundidade (inverted hull).
+- Motivo: reproduzir o visual de malha 3D toon do Three.js de forma ultra-rápida em CPU.
+
+## D034 — 3D PBR com luz direcional, oclusão ambiental e DoF
+
+- Data: 2026-11-14
+- Decisão: implementar `tecnicas/tres_d.py` com cálculo de normais e mapa de oclusão ambiental (AO) por concavidade local, iluminação mista (luz solar direta pontual + iluminação ambiente hemisférica céu/chão), reflexos especulares físicos microfacet e profundidade de campo (DoF/bokeh suave).
+- Motivo: entregar renderização 3D PBR com sombras comprovadas sem difusão e com tempo de processamento inferior a 25 s por trecho de 5 s.
+
+## D035 — Orquestrador procedural unificado (pipeline/render_procedural.py)
+
+- Data: 2026-11-14
+- Decisão: unificar o processamento dos 4 estilos procedurais em `pipeline/render_procedural.py` com pool de threads multithreading para paralelismo de quadros na CPU, compartilhando a montagem de áudio sincronizado e codificação FFmpeg do `render_stick`.
+- Motivo: consistência de pipeline, modularidade e reaproveitamento dos padrões já validados no M2.

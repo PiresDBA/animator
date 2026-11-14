@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from pipeline import cache, render_stick, roteador, seguranca, tracking, video
+from pipeline import cache, render_procedural, render_stick, roteador, seguranca, tracking, video
 
 RAIZ = cache.CONFIG["raiz"]
 FFMPEG = cache.CONFIG["ffmpeg"]
@@ -144,27 +144,40 @@ def executar(
         cenas=cenas_lista,
     )
 
-    # 4. Construcao do filme stick-film adaptado
-    cor_fundo = render_stick._cor_fundo(caminho_video, 0.0, min(5.0, duracao_total))
-    render_stick.construir_filme(
-        rastreio=rastreio,
-        pasta_filme=pasta_filme,
-        largura=largura,
-        altura=altura,
-        fps=30,
-        duracao=duracao_total,
-        seed=seed,
-        cor_fundo=cor_fundo,
-    )
+    if estilo == "bonecos":
+        # 4. Construcao do filme stick-film adaptado
+        cor_fundo = render_stick._cor_fundo(caminho_video, 0.0, min(5.0, duracao_total))
+        render_stick.construir_filme(
+            rastreio=rastreio,
+            pasta_filme=pasta_filme,
+            largura=largura,
+            altura=altura,
+            fps=30,
+            duracao=duracao_total,
+            seed=seed,
+            cor_fundo=cor_fundo,
+        )
 
-    # 5. Renderizacao dos quadros
-    numero_quadros = max(1, int(round(duracao_total * 30)))
-    render_stick.renderizar_quadros(
-        pasta_filme=pasta_filme,
-        numero_quadros=numero_quadros,
-        saida=pasta_frames,
-        workers=2,
-    )
+        # 5. Renderizacao dos quadros
+        numero_quadros = max(1, int(round(duracao_total * 30)))
+        render_stick.renderizar_quadros(
+            pasta_filme=pasta_filme,
+            numero_quadros=numero_quadros,
+            saida=pasta_frames,
+            workers=2,
+        )
+    else:
+        # Estilos procedurais (lego, anime, cartoon, 3d)
+        render_procedural.renderizar_estilo(
+            caminho_video=caminho_video,
+            estilo=estilo,
+            pasta_saida=pasta_frames,
+            inicio_s=0.0,
+            duracao_s=duracao_total,
+            fps=30,
+            largura=largura,
+            altura=altura,
+        )
 
     # 6. Audio e MP4
     render_stick.montar_audio(

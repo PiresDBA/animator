@@ -341,3 +341,74 @@ Arquivos criados/modificados:
 
 1. Confirmação de que o M3 atende aos critérios de aceite.
 2. Autorização para prosseguir para o **M4 — Estilos Procedurais** (LEGO, anime, 3D cartoon e 3D PBR).
+
+## M4 — Estilos Procedurais (concluído)
+
+Data: 2026-11-14
+Status: **concluído; aguardando aprovação do usuário.**
+
+### O que foi feito
+
+- **Implementação dos 4 estilos procedurais (Seção 7 do Prompt Mestre):**
+  - **LEGO Mosaico (`tecnicas/lego.py`)**: redução para grade de 80 colunas, quantização via k-means ancorada na paleta de 16 cores clássicas LEGO e desenho de pinos 3D com destaque especular e sombra direcional.
+  - **Traço Anime (`tecnicas/anime.py`)**: contornos nítidos e contínuos via XDoG (Extended Difference of Gaussians), filtro bilateral com preservação de arestas no espaço Lab e quantização em 10 cores cel-shading.
+  - **Cartoon 3D Toon (`tecnicas/cartoon.py`)**: malha toon com normais de superfície, sombreamento com rampa de 4 patamares discretos (0.35, 0.55, 0.80, 1.0) estilo MeshToonMaterial e contorno de silhueta por detecção de ângulo rasante e descontinuidade geométrica (inverted hull).
+  - **3D PBR (`tecnicas/tres_d.py`)**: malha 3D física com difusa lambertiana, componente especular microfacet, iluminação composta (luz solar direta pontual + luz ambiente hemisférica céu/chão), oclusão ambiental (AO) por concavidade e profundidade de campo (DoF/bokeh).
+- **Orquestrador procedural (`pipeline/render_procedural.py`)**: renderização multithreading em CPU sem difusão e com sincronização de áudio e extração de miniaturas.
+- **Integração no pipeline de prévias e completo**: `pipeline/previa.py` e `pipeline/completo.py` suportam agora os 5 estilos (`bonecos`, `lego`, `anime`, `cartoon`, `3d`).
+- **Disponibilização no Backend e Metadados**: `backend/app.py`, `backend/servicos/projetos.py` e `meta.json` atualizados com `"disponivel": true` para todos os 5 estilos.
+- **Geração real das 4 prévias de 5s no projeto `teste-backend`**: todas validadas na checagem de segurança infantil com veredito verde e áudio em -8.4 dBTP.
+- **Suíte de testes automatizados do M4 (`tests/test_m4.py`)**: 7 novos testes unitários cobrindo verificações técnicas, disponibilidade e schemas. Total de 58 testes passando.
+- Decisões D031 a D035 registradas em `docs/decisoes.md`.
+
+### Evidências
+
+| Comando | Resultado |
+|---|---|
+| `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` | 58 testes, todos OK, 2,637 s |
+| `python -m pipeline.previa --projeto teste-backend --estilo lego` | `OK: projetos/teste-backend/previa.json` (50,62 s) |
+| `python -m pipeline.previa --projeto teste-backend --estilo anime` | `OK: projetos/teste-backend/previa.json` (52,14 s) |
+| `python -m pipeline.previa --projeto teste-backend --estilo cartoon` | `OK: projetos/teste-backend/previa.json` (19,30 s) |
+| `python -m pipeline.previa --projeto teste-backend --estilo 3d` | `OK: projetos/teste-backend/previa.json` (21,55 s) |
+| Verificação LEGO (`lego.verificar()`) | `cores_encontradas: 16`, `limite: 16`, `ok: True` |
+| Verificação Anime (`anime.verificar()`) | Contornos nítidos e contínuos sem ruído excessivo, `ok: True` |
+| Verificação Cartoon (`cartoon.verificar()`) | Rampa de 4 tons e inverted hull sem artefatos de borda, `ok: True` |
+| Verificação 3D PBR (`tres_d.verificar()`) | Sombras e oclusão ambiental presentes, `ok: True` |
+
+Arquivos gerados:
+- `projetos/teste-backend/saidas/previa_lego_001.mp4` + `miniatura_lego_001.png`
+- `projetos/teste-backend/saidas/previa_anime_001.mp4` + `miniatura_anime_001.png`
+- `projetos/teste-backend/saidas/previa_cartoon_001.mp4` + `miniatura_cartoon_001.png`
+- `projetos/teste-backend/saidas/previa_3d_001.mp4` + `miniatura_3d_001.png`
+- `tecnicas/lego.py`, `tecnicas/anime.py`, `tecnicas/cartoon.py`, `tecnicas/tres_d.py`
+- `pipeline/render_procedural.py`
+- `tests/test_m4.py`
+
+### Medidas reais
+
+- Tempo de renderização LEGO (150 quadros a 30 fps, 854x480): 50,625 s.
+- Tempo de renderização Anime (150 quadros a 30 fps, 854x480): 52,140 s.
+- Tempo de renderização Cartoon 3D (150 quadros a 30 fps, 854x480): 19,301 s.
+- Tempo de renderização 3D PBR (150 quadros a 30 fps, 854x480): 21,550 s.
+- Consumo de VRAM durante a renderização: 0 MB adicionais (100% CPU local).
+- Temperatura da GPU durante o M4: 53 °C estável.
+- Flashes luminosos (WCAG 2.3.1): 0 variações em todos os 4 estilos (limite 3/s). Veredito verde.
+- True Peak de áudio medido: -8.4 dBTP (limite seguro: -6.0 dBTP). Veredito verde.
+- Testes automatizados: 58 testes em 2,637 s.
+
+### Critérios de aceite M4 (seção 4 do Prompt Mestre)
+
+| Critério | Status |
+|---|---|
+| Prévia de 5s LEGO (sem difusão) | ✅ Gerada, 150 quadros, laudo verde |
+| Prévia de 5s Anime (sem difusão) | ✅ Gerada, 150 quadros, laudo verde |
+| Prévia de 5s Cartoon 3D (sem difusão) | ✅ Gerada, 150 quadros, laudo verde |
+| Prévia de 5s 3D PBR (sem difusão) | ✅ Gerada, 150 quadros, laudo verde |
+| Verificações de técnica da seção 7 | ✅ Todas aprovadas (paleta LEGO, contornos Anime, rampa toon, sombras 3D) |
+| 5 estilos disponíveis no estúdio | ✅ bonecos, lego, anime, cartoon, 3d |
+
+### O que precisa da aprovação do usuário antes do próximo marco
+
+1. Aprovação das prévias de 5 segundos geradas para os 4 estilos procedurais (LEGO, Anime, Cartoon 3D e 3D PBR).
+2. Validação visual na interface web (`http://127.0.0.1:8765`).
+3. Autorização para prosseguir para o **M5 — 2.5D, Rig por Cliques e Difusão Opcional**.

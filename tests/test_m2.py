@@ -63,7 +63,7 @@ class TestPortaoBackend(unittest.TestCase):
             self.skipTest("previa.json nao encontrado em teste-backend")
         dados = json.loads(caminho_previa.read_text(encoding="utf-8"))
         self.assertEqual(dados.get("versao"), 1)
-        self.assertEqual(dados.get("estilo"), "bonecos")
+        self.assertIn(dados.get("estilo"), ("bonecos", "lego", "anime", "cartoon", "3d"))
         self.assertEqual(dados.get("status"), "pronto")
         self.assertIn("arquivo", dados)
         self.assertIn("miniatura", dados)

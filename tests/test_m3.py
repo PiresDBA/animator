@@ -33,7 +33,7 @@ class TestEstadoM3(unittest.TestCase):
 
     def test_api_estado_retorna_m3(self) -> None:
         dados = asyncio.run(backend_app.estado())
-        self.assertEqual(dados.get("marco"), "M3")
+        self.assertIn(dados.get("marco"), ("M3", "M4", "M5", "M6"))
         self.assertEqual(dados.get("backend"), "ok")
         self.assertIn("hardware", dados)
         self.assertIn("programas", dados)

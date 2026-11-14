@@ -4,7 +4,7 @@
   "nome_exibicao": "Mosaico de blocos",
   "descricao": "Cena refeita com blocos coloridos de pinos, em grade e paleta limitada.",
   "tecnica": "lego_mosaico",
-  "status": "planejado",
+  "status": "ativo",
   "gpu_necessaria": false,
   "difusao": false,
   "paleta_max": 16,

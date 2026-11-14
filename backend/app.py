@@ -165,9 +165,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Estudio de Animacao - M3",
-    version="1.1.0",
-    description="Backend local do M3 (portao de seguranca e video completo).",
+    title="Estudio de Animacao - M4",
+    version="1.2.0",
+    description="Backend local do M4 (estilos procedurais: lego, anime, cartoon, 3d).",
     lifespan=lifespan,
 )
 
@@ -200,9 +200,9 @@ async def erro_de_validacao(request, exc: RequestValidationError) -> JSONRespons
 # --------------------------------------------------------------------- estado
 @app.get("/api/estado")
 async def estado() -> dict[str, Any]:
-    """Estado geral do backend (contrato M2, secao 5)."""
+    """Estado geral do backend (contrato M4, secao 5)."""
     return {
-        "marco": "M3",
+        "marco": "M4",
         "backend": "ok",
         "fila": fila.resumo(),
         "hardware": hardware.resumo(),

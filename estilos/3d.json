@@ -2,11 +2,11 @@
   "versao": 1,
   "id": "3d",
   "nome_exibicao": "3D com materiais realistas",
-  "descricao": "Malha a partir de profundidade, material PBR, luz direcional e sombras.",
+  "descricao": "Malha a partir de profundidade, material PBR, luz direcional, sombras e DoF.",
   "tecnica": "pbr3d",
-  "status": "planejado",
+  "status": "ativo",
   "gpu_necessaria": false,
   "difusao": false,
   "paleta_max": null,
-  "observacao": "Three.js no Remotion; sem difusão na Fase A."
+  "observacao": "Three.js e renderização física PBR; sem difusão."
 }

@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from pipeline import cache, render_stick, roteador, seguranca, tracking
+from pipeline import cache, render_procedural, render_stick, roteador, seguranca, tracking
 
 RAIZ = cache.CONFIG["raiz"]
 
@@ -98,8 +98,8 @@ def executar(
 
     # 3. Preparacao de pastas
     pasta_saidas = pasta_projeto / "saidas"
-    pasta_filme = pasta_saidas / "filme"
-    pasta_frames = pasta_saidas / "frames"
+    pasta_filme = pasta_saidas / f"filme_{estilo}"
+    pasta_frames = pasta_saidas / f"frames_{estilo}"
     pasta_saidas.mkdir(parents=True, exist_ok=True)
     pasta_filme.mkdir(parents=True, exist_ok=True)
     pasta_frames.mkdir(parents=True, exist_ok=True)
@@ -111,27 +111,40 @@ def executar(
     arquivo_miniatura = pasta_saidas / f"miniatura_{previa_id}.png"
     arquivo_audio = pasta_saidas / "audio_trecho.wav"
 
-    # 4. Construcao do filme stick-film
-    cor_fundo = render_stick._cor_fundo(caminho_video, trecho_inicio, trecho_fim)
-    render_stick.construir_filme(
-        rastreio=rastreio,
-        pasta_filme=pasta_filme,
-        largura=largura,
-        altura=altura,
-        fps=30,
-        duracao=duracao_s,
-        seed=seed,
-        cor_fundo=cor_fundo,
-    )
+    if estilo == "bonecos":
+        # 4. Construcao do filme stick-film
+        cor_fundo = render_stick._cor_fundo(caminho_video, trecho_inicio, trecho_fim)
+        render_stick.construir_filme(
+            rastreio=rastreio,
+            pasta_filme=pasta_filme,
+            largura=largura,
+            altura=altura,
+            fps=30,
+            duracao=duracao_s,
+            seed=seed,
+            cor_fundo=cor_fundo,
+        )
 
-    # 5. Renderizacao dos quadros com o motor
-    numero_quadros = max(1, int(round(duracao_s * 30)))
-    render_stick.renderizar_quadros(
-        pasta_filme=pasta_filme,
-        numero_quadros=numero_quadros,
-        saida=pasta_frames,
-        workers=2,
-    )
+        # 5. Renderizacao dos quadros com o motor
+        numero_quadros = max(1, int(round(duracao_s * 30)))
+        render_stick.renderizar_quadros(
+            pasta_filme=pasta_filme,
+            numero_quadros=numero_quadros,
+            saida=pasta_frames,
+            workers=2,
+        )
+    else:
+        # Estilos procedurais (lego, anime, cartoon, 3d)
+        render_procedural.renderizar_estilo(
+            caminho_video=caminho_video,
+            estilo=estilo,
+            pasta_saida=pasta_frames,
+            inicio_s=trecho_inicio,
+            duracao_s=duracao_s,
+            fps=30,
+            largura=largura,
+            altura=altura,
+        )
 
     # 6. Extracao de audio original e montagem da previa MP4
     render_stick.montar_audio(

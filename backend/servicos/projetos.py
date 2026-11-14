@@ -22,23 +22,23 @@ ESTILOS_M2 = {
     "bonecos": {"rotulo": "Bonecos de palito", "disponivel": True, "motivo": None},
     "lego": {
         "rotulo": "Mosaico de blocos",
-        "disponivel": False,
-        "motivo": "disponivel a partir do M4",
+        "disponivel": True,
+        "motivo": None,
     },
     "anime": {
         "rotulo": "Anime",
-        "disponivel": False,
-        "motivo": "disponivel a partir do M4",
+        "disponivel": True,
+        "motivo": None,
     },
     "cartoon": {
         "rotulo": "Cartoon",
-        "disponivel": False,
-        "motivo": "disponivel a partir do M4",
+        "disponivel": True,
+        "motivo": None,
     },
     "3d": {
         "rotulo": "3D",
-        "disponivel": False,
-        "motivo": "disponivel a partir do M4",
+        "disponivel": True,
+        "motivo": None,
     },
 }
 
