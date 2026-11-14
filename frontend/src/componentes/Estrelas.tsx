@@ -33,9 +33,9 @@ export default function Estrelas({
             aria-checked={!leitura ? valor === n : undefined}
             role={leitura ? undefined : 'radio'}
             className={[
-              'rounded p-0.5 transition-colors',
-              leitura ? 'cursor-default' : 'hover:bg-base-700',
-              n <= valor ? 'text-amber-300' : 'text-base-500',
+              'rounded p-1 transition-transform duration-150',
+              leitura ? 'cursor-default' : 'hover:scale-125 active:scale-95 hover:bg-base-700/60',
+              n <= valor ? 'text-amber-300' : 'text-base-500 hover:text-amber-200/70',
             ].join(' ')}
           >
             <Star

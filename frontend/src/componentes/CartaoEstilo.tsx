@@ -21,7 +21,7 @@ export default function CartaoEstilo({
   return (
     <div
       className={[
-        'cartao flex flex-col gap-3 p-4 transition-colors',
+        'cartao cartao-interativo flex flex-col gap-3 p-4',
         selecionado ? 'border-acento ring-1 ring-acento/50' : '',
         bloqueado ? 'opacity-70' : '',
       ].join(' ')}

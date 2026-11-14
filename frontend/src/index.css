@@ -5,6 +5,9 @@
 @layer base {
   :root {
     color-scheme: dark;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   html,
@@ -44,6 +47,15 @@
 @layer components {
   .cartao {
     @apply rounded-xl border border-base-700 bg-base-850 shadow-paine;
+    transition: transform 220ms var(--ease-out), border-color 180ms ease, box-shadow 220ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cartao-interativo:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 211, 238, 0.45);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(34, 211, 238, 0.18);
+    }
   }
 
   .cartao-titulo {
@@ -56,8 +68,9 @@
 
   .campo {
     @apply w-full rounded-lg border border-base-600 bg-base-900 px-3 py-2 text-sm text-slate-100
-      placeholder:text-slate-500 transition-colors hover:border-base-500
+      placeholder:text-slate-500
       focus:border-acento focus:outline-none focus:ring-1 focus:ring-acento;
+    transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
 
   .rotulo-campo {
@@ -66,7 +79,12 @@
 
   .botao {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium
-      transition-colors disabled:cursor-not-allowed disabled:opacity-45;
+      disabled:cursor-not-allowed disabled:opacity-45;
+    transition: transform 160ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .botao:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   .botao-primario {
@@ -88,6 +106,7 @@
   .chip {
     @apply inline-flex items-center gap-1 rounded-full border border-base-600 bg-base-800 px-2 py-0.5
       text-[11px] font-medium text-slate-300;
+    transition: transform 140ms var(--ease-out), background-color 140ms ease;
   }
 }
 
@@ -100,5 +119,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    transform: none !important;
   }
 }
