@@ -22,4 +22,37 @@ tests/golden/*.wav
 *.onnx
 *.safetensors
 backend/fila.sqlite3*
+# arquivos de video, animacao e stun segue fora do git
+*.mp4
+*.ogv
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# animacoes pequenas tb fora
+*.gif
+
+# jog dumps/capturas tb fora
+*.jog
+
+# qualquer arquivo com apikey, token ou segredo de api tb fora do git
+**/*apikey*
+**/*api.key*
+**/*api_key*
+**/*secret*
+**/*token*
+**/.env.local
+**/.env.production
+**/config.local*
+**/.env.development.local
+**/.env.test.local
+**/.env.staging.local
+**/secrets*
+**/*.env
+**/.env
+**/.env.*
+**/.env.*.local
+**/config.*.local*
+# saida do remotion (build) fora do git
 remotion/out/
